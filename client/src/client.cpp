@@ -1,4 +1,5 @@
 #include "client.hpp"
+#include "enc_index.pb.h"
 
 #include <fstream>
 #include <iomanip>
@@ -44,32 +45,41 @@ Client::Client (std::string server_name_,
 	for(auto &val: query)
 		query_vals += std::to_string(val) + ", ";
 	log.information("Query: " + query_vals);
-	log.information("--------------------------------------------------");
 
 	/////////////////////////////////////////////////////////////////////////
 	
 	nnxx::socket client_socket { nnxx::SP, nnxx::REQ };
 	client_socket.connect("tcp://" + server_name + ":" + std::to_string(port));
 
-	int lg_sigma = 5; //TODO: calcular, este valor lo tiene el server
-	int text_len = 13;
+	QueryConfig query_config;
+	query_config.set_pub_key( pubt.getStr() );
+	query_config.set_query_size(query_size);
+	client_socket.send(query_config.SerializeAsString());
+	
+	TextConfig text_config; 
+	text_config.ParseFromString( nnxx::to_string(client_socket.recv()) );
+
+	log.information("Received:");
+	log.information("lg_sigma: " + std::to_string(text_config.lg_sigma() ));
+	log.information("text_len: " + std::to_string(text_config.text_len() ));
+
+	int lg_sigma = text_config.lg_sigma();
+	int text_len = text_config.text_len();
 	int array_len = text_len * 2;
 
 	for(auto &v: query){
-		int query_val = v;
-		std::cout << "Query : " << query_val << std::endl;
-		int pos = 0;
-		cout << "starting position: " << pos << endl;
+		log.information("------------------------------ Query: " + std::to_string(v));
 
+		int query_val = v;
+		int pos = 0;
 
 		for(int i=0; i<lg_sigma; i++, query_val >>= 1){
-			std::cout << "Postition: " << pos;
+			log.debug("position: " + std::to_string(pos));
+
 			int bit = 1 & query_val;
 			pos += (bit == 0) ? 0: (text_len);
 
 			std::cout << "\t qPosition: " << pos << "\tbit:" << bit << endl;
-
-			////////////////////////////////////////////////////////////////////
 
 			std::vector<Elgamal::CipherText> sec_vec(array_len);
 
@@ -85,10 +95,6 @@ Client::Client (std::string server_name_,
 			}
 
 			////////////////////////////////////////////////////////////////////
-
-			std::string pubts = pubt.toStr();
-			client_socket.send( pubts );
-			cout << "Received: " << client_socket.recv() << endl;
 
 	 		cout << "Sended - Response" << endl;
 			for(auto &item: sec_vec){

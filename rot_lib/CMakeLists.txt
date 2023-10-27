@@ -31,4 +31,5 @@ endforeach()
 target_link_libraries(rot
     PUBLIC
         protobuf::libprotobuf
+		mcl
 )

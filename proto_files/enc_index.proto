@@ -4,8 +4,18 @@
 
 syntax = "proto3";
 
+
+message QueryConfig{
+	string pub_key = 1;
+	uint32 query_size = 2;
+}
+
+message TextConfig{
+	uint32 lg_sigma = 1;
+	uint32 text_len = 2;
+}
+
 message EncIndex {
-  string pub_key = 1;
   repeated string query = 2;
 }
 
