@@ -8,10 +8,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 set(CMAKE_BUILD_TYPE Debug)
 
+configure_file(server/include/config.hpp.in config.hpp)
+
+################################################## Libraries
+
 find_package(Poco REQUIRED COMPONENTS Foundation Util)
 find_package(nanomsg CONFIG REQUIRED)
+find_package(Protobuf REQUIRED)
 
-####################################################### Fetch git cprojects libraries
+######################################## Fetch git cprojects
    include(FetchContent)
    
    FetchContent_Declare(mcl
@@ -25,19 +30,18 @@ find_package(nanomsg CONFIG REQUIRED)
    )
 
    FetchContent_Declare(nanomsgxx
-	 GIT_REPOSITORY git@github.com:achille-roussel/nanomsgxx.git
-
-	 #GIT_REPOSITORY git@github.com:noahness/nanomsgxx.git
-	 #GIT_TAG feature/export_target_cmake
+	   GIT_REPOSITORY git@github.com:achille-roussel/nanomsgxx.git
+	   #GIT_REPOSITORY git@github.com:noahness/nanomsgxx.git
+	   #GIT_TAG feature/export_target_cmake
    )
 
    FetchContent_MakeAvailable(mcl cybozu nanomsgxx)
-####################################################### git projects libraries
+##################################################
+
+include_directories(${Protobuf_INCLUDE_DIRS})
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS proto_files/enc_index.proto)
 
 add_subdirectory(server)
 add_subdirectory(client)
 add_subdirectory(tests)
-
-configure_file(server/include/config.hpp.in config.hpp)
-
-
+add_subdirectory(rot_lib)

@@ -10,6 +10,9 @@ class Server {
 		virtual ~Server (){}
 
 	private:
+
+		Poco::Logger &log = Poco::Logger::get("Server");
+
 		std::string file_name;
 		int port;
 		WM wm;

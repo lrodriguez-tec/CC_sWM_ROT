@@ -14,6 +14,7 @@ target_link_libraries(client_app
 	Poco::Util
 	mcl
 	nnxx
+	rot
 )
 
 file(COPY resources/ DESTINATION resources/)

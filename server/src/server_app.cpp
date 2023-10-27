@@ -95,9 +95,7 @@ class Server_app: public Application {
 				log.information("  -input_file_name  : " + input_file , 	__FILE__,__LINE__);
 				log.information("  -port             : " + std::to_string(port) , 	__FILE__,__LINE__);
 
-				
-				SysInit();
-
+				Elgamal_sysInit();
 				Server server{port, input_file};
 			}
 

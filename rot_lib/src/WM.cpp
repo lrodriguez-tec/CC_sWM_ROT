@@ -8,7 +8,7 @@ WM::WM(std::string file_name){
 	std::ifstream ifs(file_name);
 
 	if(!ifs){
-		std::cerr << "Error abriendo archivo: " << file_name << std::endl;
+		log.error("Error opening file: " + file_name, __FILE__, __LINE__);
 		exit(0);
 	}
 
@@ -27,16 +27,14 @@ std::ostream& operator<<(std::ostream& os, const WM& wm){
 
 	os << "lg_sigma=" << wm.lg_sigma<<", text_len=" << wm.text_len << std::endl;
 
-	os << std::endl;
 	for(int i=0; i<wm.text_len*2; i++)
 		os << "----";
 	os << std::endl;
 
-
 	for(int i=0; i<wm.text_len*2; i++)
 		os << std::setw(3) << i << ",";
-
 	os << std::endl;
+
 	for(int i=0; i<wm.text_len*2; i++)
 		os << "----";
 	os << std::endl;

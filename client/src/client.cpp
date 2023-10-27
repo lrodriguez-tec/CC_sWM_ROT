@@ -22,7 +22,6 @@ Client::Client (std::string server_name_,
 
 	std::ifstream ifs{query_file_name_};
 
-	system("pwd");
 	if(!ifs){
 		std::cerr << "Error abriendo archivo : " << query_file_name_ << std::endl;
 		exit(0);
@@ -37,17 +36,20 @@ Client::Client (std::string server_name_,
 		query.push_back(temp);
 	}
 	
-	std::cout << "Query size: " << query_size << std::endl;
-	std::cout << "Alph size: " << alph_size << std::endl;
+	log.information("--------------------------------------------------");
+	log.information("Query size: " + std::to_string(query_size));
+	log.information("Alph  size: " + std::to_string(alph_size));
+
+	std::string query_vals;
 	for(auto &val: query)
-		std::cout << std::setw(3) << val << ", ";
-	std::cout << std::endl;
+		query_vals += std::to_string(val) + ", ";
+	log.information("Query: " + query_vals);
+	log.information("--------------------------------------------------");
 
 	/////////////////////////////////////////////////////////////////////////
 	
-	//std::string url = std::string{"tcp://"} + server_name + ":" + std::to_string(port);
 	nnxx::socket client_socket { nnxx::SP, nnxx::REQ };
-	client_socket.bind("ipc:///tmp/wmcc.ipc");
+	client_socket.connect("tcp://" + server_name + ":" + std::to_string(port));
 
 	int lg_sigma = 5; //TODO: calcular, este valor lo tiene el server
 	int text_len = 13;

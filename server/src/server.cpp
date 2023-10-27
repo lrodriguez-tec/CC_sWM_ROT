@@ -20,26 +20,23 @@ Server::Server (int port_, std::string file_name_) : file_name{file_name_}, port
 	std::cout << wm << std::endl;
 
 	nnxx::socket serv_socket{ nnxx::SP, nnxx::REP };
-	serv_socket.connect("ipc:///tmp/wmcc.ipc");
+	serv_socket.bind("tcp://127.0.0.1:" + std::to_string(port));
 
 	int vi = 0;
 	nnxx::message msg;
 
-	int lg_sigma = 5; //TODO: calcular, este valor lo tiene el server
-	int text_len = 13;
+	int lg_sigma = wm.get_lg_sigma();
+	int text_len = wm.get_text_len();
 	int array_len = text_len * 2;
 
-
 	while(true){
+		std::string pubk = nnxx::to_string( serv_socket.recv() );
+		serv_socket.send("PublicKey received");
 
-		nnxx::message pk = serv_socket.recv();
-		cout << "llave publica: " << pk << endl;
-		serv_socket.send("llave publica recibida");
-
-		std::string pk_s = nnxx::to_string(pk);
 		Elgamal::PublicKey pubt;
-		pubt.setStr(pk_s);
-		cout << "llave publica (pubt): " << pubt << endl;
+		pubt.setStr(pubk);
+
+		log.information("Publicey (pubt): " + pubt.getStr());
 
 		std::vector<Elgamal::CipherText> sec_vec(array_len);
 

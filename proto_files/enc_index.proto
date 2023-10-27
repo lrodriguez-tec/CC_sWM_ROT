@@ -1,0 +1,14 @@
+// to generate protobuf files, execute this command in this directory:
+//
+// protoc -I=. --cpp_out=. enc_index.proto
+
+syntax = "proto3";
+
+message EncIndex {
+  string pub_key = 1;
+  repeated string query = 2;
+}
+
+ message result {
+     string rest = 1;
+ }

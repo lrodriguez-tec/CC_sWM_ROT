@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Poco/Logger.h>
 #include <string>
 #include <vector>
 
@@ -17,6 +18,9 @@ class Client {
 		virtual ~Client (){}
 
 	private:
+
+		Poco::Logger &log = Poco::Logger::get("Client");
+
 		int port;
 		std::string server_name;
 

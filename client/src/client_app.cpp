@@ -23,10 +23,11 @@ class Client_app: public Application {
 
 		bool helpRequested;
 		std::string input_file;
+		std::string server_name;
 		int port;
 
 	public:
-		Client_app(): helpRequested{false}, port{9999} {}
+		Client_app(): helpRequested{false}, port{9999}, server_name{"localhost"}, input_file{"resources/query.txt"} {}
 
 	protected:	
 
@@ -61,14 +62,24 @@ class Client_app: public Application {
 					.required(false)
 					.argument("<port>")
 					.callback(OptionCallback<Client_app>(this, &Client_app::set_port)));
+
+			options.addOption(
+					Option("Server name", "s", "server_name")
+					.required(false)
+					.argument("<server_name>")
+					.callback(OptionCallback<Client_app>(this, &Client_app::set_server_name)));
+	
 		}
 
 		void set_input_file(const std::string& name, const std::string& value) { 
 			input_file = value;
 		}
 
+		void set_server_name(const std::string& name, const std::string& value) { 
+			server_name = value;
+		}
+
 		void set_port(const std::string& name, const std::string& value) { 
-			log.information("Entra aqui: " + value);
 			port = std::stoi(value);
 		}
 
@@ -93,29 +104,17 @@ class Client_app: public Application {
 
 				log.information("Application options : " , 					__FILE__,__LINE__);
 				log.information("  -input_file_name  : " + input_file , 	__FILE__,__LINE__);
+				log.information("  -server_name      : " + server_name , 	__FILE__,__LINE__);
 				log.information("  -port             : " + std::to_string(port) , 	__FILE__,__LINE__);
+
+				Elgamal::PrivateKey prvt = generate_prvt_key();
+				const Elgamal::PublicKey &pubt = prvt.getPublicKey();
+
+				log.information("*** prvt: " + prvt.getStr());
+				log.information("*** pubt: " + pubt.getStr());
+
+				Client client{server_name, port, input_file , prvt, pubt};
 			}
-
-
-			SysInit();
-
-			const mcl::EcParam& para = mcl::ecparam::secp192k1;
-			const Fp x0(para.gx);
-			const Fp y0(para.gy);
-			const Ec P(x0, y0);
-			const size_t bitLen = para.bitSize;
-
-			Elgamal::PrivateKey prvt;
-			prvt.init(P, bitLen); //, rg);
-			const Elgamal::PublicKey &pubt = prvt.getPublicKey();
-			
-			log.information("prvt: " + prvt.getStr());
-			log.information("pubt: " + pubt.getStr());
-
-			std::string file_name{"resources/query.txt"};
-			std::string server_name{"localhost"};
-
-			Client client{server_name, port, file_name, prvt, pubt};
 
 			return Application::EXIT_OK;
 		}
