@@ -22,12 +22,10 @@ Client::Client (std::string server_name_,
 													pubt{pubt_}{
 
 	std::ifstream ifs{query_file_name_};
-
 	if(!ifs){
 		std::cerr << "Error abriendo archivo : " << query_file_name_ << std::endl;
 		exit(0);
 	}
-
 	ifs >> query_size;
 	ifs >> alph_size;
 
@@ -46,8 +44,7 @@ Client::Client (std::string server_name_,
 		query_vals += std::to_string(val) + ", ";
 	log.information("Query: " + query_vals);
 
-	/////////////////////////////////////////////////////////////////////////
-	
+
 	nnxx::socket client_socket { nnxx::SP, nnxx::REQ };
 	client_socket.connect("tcp://" + server_name + ":" + std::to_string(port));
 
@@ -74,48 +71,43 @@ Client::Client (std::string server_name_,
 		int pos = 0;
 
 		for(int i=0; i<lg_sigma; i++, query_val >>= 1){
-			log.debug("position: " + std::to_string(pos));
+			int real_pos = pos;
 
 			int bit = 1 & query_val;
 			pos += (bit == 0) ? 0: (text_len);
 
-			std::cout << "\t qPosition: " << pos << "\tbit:" << bit << endl;
+			log.information(std::to_string(i) + " (vi) ------------------------------> pos: " + std::to_string(real_pos) + " --- query_pos: " + std::to_string(pos) + " --- " + std::to_string(bit));
+			log.information("Plain \t\tCipher");
 
-			std::vector<Elgamal::CipherText> sec_vec(array_len);
-
-			cout << "Plain" << "\t\tCipher" << endl;
+			EncIndex enc_index;
 
 			for(int j=0; j < array_len; j++){
 				Zn zn = (j == pos)? 1: 0; 
-				pubt.enc( sec_vec[j], zn);
+
+				Elgamal::CipherText ct;
+				pubt.enc( ct, zn);
+
+				enc_index.add_query( ct.getStr() );
 
 				Zn rzn;
-				prvt.dec(rzn, sec_vec[j]);
-				cout << setw(3) << j << "[" << rzn << "]" << "[" << zn << "] [" << sec_vec[j] << "]" << endl;
+				prvt.dec(rzn, ct);
+				log.information(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]");
 			}
 
-			////////////////////////////////////////////////////////////////////
+			client_socket.send( enc_index.SerializeAsString() );
+			
+			QueryResult query_result;
+			query_result.ParseFromString(nnxx::to_string(client_socket.recv()));
 
-	 		cout << "Sended - Response" << endl;
-			for(auto &item: sec_vec){
-				std::string val = item.getStr();
-				client_socket.send( val );
-				std::cout << val << " --- " << client_socket.recv() << endl;
-
-			}
-
-			client_socket.send( "Respuesta!" );
-			nnxx::message result = client_socket.recv();
 			Elgamal::CipherText cipher_res;
-			cipher_res.fromStr( nnxx::to_string(result) );
-		
+			cipher_res.fromStr( query_result.cipher_index() );
 
 			Zn zres;
 			prvt.dec(zres, cipher_res);
 			cout << "Resultado: (ciph)  " << cipher_res << endl;
 			cout << "Resultado: (plain) " << zres << endl;
 
-			pos = zres.getInt64();
+			pos = zres.getUint64();
 		}
 
 		cout << "Resultado Final ========================================================================== : (query: " << v << ") " << pos << endl;

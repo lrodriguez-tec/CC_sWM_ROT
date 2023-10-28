@@ -65,7 +65,7 @@ int WM::query_rankCF(int pos, int query_val){
 	return pos;
 }
 
-Elgamal::CipherText WM::query_rankCF_pos(std::vector<Elgamal::CipherText> ciph_pos, int vi){
+Elgamal::CipherText WM::query_rankCF_pos(std::vector<Elgamal::CipherText> &ciph_pos, int vi){
 	auto &rank_vec = rankCF.at(vi);
 
 	Elgamal::CipherText cr;
@@ -77,4 +77,13 @@ Elgamal::CipherText WM::query_rankCF_pos(std::vector<Elgamal::CipherText> ciph_p
 	}
 
 	return cr;
+}
+
+Elgamal::CipherText WM::query_rankCF_pos(EncIndex &enc_index, int vi){
+
+	std::vector<Elgamal::CipherText> ciph_pos( enc_index.query_size() );
+	for(int i=0; i<enc_index.query_size() ; i++)
+		ciph_pos.at(i).fromStr( enc_index.query(i) );
+
+	return query_rankCF_pos( ciph_pos, vi);
 }

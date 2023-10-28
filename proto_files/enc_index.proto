@@ -19,6 +19,6 @@ message EncIndex {
   repeated string query = 2;
 }
 
- message result {
-     string rest = 1;
+ message QueryResult {
+     string cipher_index = 1;
  }

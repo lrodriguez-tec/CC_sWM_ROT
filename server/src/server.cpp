@@ -22,7 +22,6 @@ Server::Server (int port_, std::string file_name_) : file_name{file_name_}, port
 	int text_len = wm.get_text_len();
 	int array_len = text_len * 2;
 
-
 	while(true){
 	
 		QueryConfig query_config;
@@ -41,28 +40,22 @@ Server::Server (int port_, std::string file_name_) : file_name{file_name_}, port
 		serv_socket.send( text_config.SerializeAsString() );
 
 		for(int i=0; i< query_config.query_size(); i++){
+			log.information(std::to_string(i) + " ------------------------------> Query" );
+
 			for(int vi=0; vi < lg_sigma; vi++){
-				std::vector<Elgamal::CipherText> sec_vec(array_len);
+				log.information(std::to_string(vi) + " (vi) ---> Query" );
+				EncIndex enc_index;
+				enc_index.ParseFromString( nnxx::to_string( serv_socket.recv() ) );
 
-				for(int i=0; i<array_len; i++){
+				for (int j = 0; j < enc_index.query_size(); ++j)
+					log.information(std::to_string(j) + " - " + "[" + enc_index.query(j) + "]");
 
-					std::cout << "Llega aqui!!"  << std::endl;
-					nnxx::message msg = serv_socket.recv();
-					std::string rec_msg = nnxx::to_string(msg);
-					sec_vec[i].fromStr(rec_msg);
+				QueryResult query_res;
+				Elgamal::CipherText res = wm.query_rankCF_pos( enc_index,  vi);
 
-					std::cout << std::setw(3) << i << " --- " << sec_vec[i] << std::endl;
-					serv_socket.send( "server_recibido" );
-				}
-
-				auto msg = serv_socket.recv();
-				std::cout << "Recibido: " << msg << std::endl;
-				Elgamal::CipherText res = wm.query_rankCF_pos( sec_vec,  vi);
-				std::string response = res.getStr();
-				std::cout << "Sending ciph pos: " << response << std::endl;
-				serv_socket.send( response );
-
-				vi = (vi + 1)% lg_sigma;
+				query_res.set_cipher_index( res.getStr() );
+				log.information( "Sending ciph pos: " + query_res.cipher_index() );
+				serv_socket.send( query_res.SerializeAsString() );
 			}
 		}
 	}

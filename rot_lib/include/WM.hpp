@@ -1,6 +1,7 @@
 #pragma once
 
 #include "El_Gammal_config.hpp"
+#include "enc_index.pb.h"
 #include <Poco/Logger.h>
 #include <vector>
 #include <string>
@@ -15,7 +16,8 @@ class WM {
 		int query_rankCF(int pos, int bit, int vi);
 		int query_rankCF(int pos, int query_val);
 		int query_rankCF_pos(int pos, int vi);
-		Elgamal::CipherText query_rankCF_pos(std::vector<Elgamal::CipherText> ciph_pos, int vi);
+		Elgamal::CipherText query_rankCF_pos(std::vector<Elgamal::CipherText> &ciph_pos, int vi);
+		Elgamal::CipherText query_rankCF_pos(EncIndex &enc_index, int vi);
 
 		int get_text_len(){ return text_len; }
 		int get_lg_sigma(){ return lg_sigma; }
