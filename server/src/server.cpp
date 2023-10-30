@@ -11,16 +11,21 @@
 
 using namespace std;
 
-Server::Server (int port_, std::string file_name_) : file_name{file_name_}, port{port_}, wm{file_name}{
+Server::Server (int port_, std::string file_name_) : file_name{file_name_}, port{port_}, wm{file_name}, serv_socket{nnxx::SP, nnxx::REP}{
 
 	std::cout << wm << std::endl;
 
-	nnxx::socket serv_socket{ nnxx::SP, nnxx::REP };
-	serv_socket.bind("tcp://127.0.0.1:" + std::to_string(port));
+	lg_sigma = wm.get_lg_sigma();
+	text_len = wm.get_text_len();
+	array_len = text_len * 2;
 
-	int lg_sigma = wm.get_lg_sigma();
-	int text_len = wm.get_text_len();
-	int array_len = text_len * 2;
+	start_server();
+
+}
+
+void Server::start_server(){
+
+	serv_socket.bind("tcp://127.0.0.1:" + std::to_string(port));
 
 	while(true){
 	
@@ -39,24 +44,30 @@ Server::Server (int port_, std::string file_name_) : file_name{file_name_}, port
 		text_config.set_text_len( text_len );
 		serv_socket.send( text_config.SerializeAsString() );
 
-		for(int i=0; i< query_config.query_size(); i++){
-			log.information(std::to_string(i) + " ------------------------------> Query" );
+		attend_query( query_config);
+		attend_query( query_config);
+	}
+}
 
-			for(int vi=0; vi < lg_sigma; vi++){
-				log.information(std::to_string(vi) + " (vi) ---> Query" );
-				EncIndex enc_index;
-				enc_index.ParseFromString( nnxx::to_string( serv_socket.recv() ) );
+void Server::attend_query(QueryConfig &query_config){
 
-				for (int j = 0; j < enc_index.query_size(); ++j)
-					log.information(std::to_string(j) + " - " + "[" + enc_index.query(j) + "]");
+	for(int i=0; i< query_config.query_size(); i++){
+		log.information(std::to_string(i) + " ================================================== Query" );
 
-				QueryResult query_res;
-				Elgamal::CipherText res = wm.query_rankCF_pos( enc_index,  vi);
+		for(int vi=0; vi < lg_sigma; vi++){
+			log.information(std::to_string(vi) + " (vi) ---> Query" );
+			EncIndex enc_index;
+			enc_index.ParseFromString( nnxx::to_string( serv_socket.recv() ) );
 
-				query_res.set_cipher_index( res.getStr() );
-				log.information( "Sending ciph pos: " + query_res.cipher_index() );
-				serv_socket.send( query_res.SerializeAsString() );
-			}
+			for (int j = 0; j < enc_index.query_size(); ++j)
+				log.information(std::to_string(j) + " - " + "[" + enc_index.query(j) + "]");
+
+			QueryResult query_res;
+			Elgamal::CipherText res = wm.query_rankCF_pos( enc_index,  vi);
+
+			query_res.set_cipher_index( res.getStr() );
+			log.information( "Sending ciph pos: " + query_res.cipher_index() );
+			serv_socket.send( query_res.SerializeAsString() );
 		}
 	}
 }

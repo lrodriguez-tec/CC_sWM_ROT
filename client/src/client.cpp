@@ -1,5 +1,6 @@
 #include "client.hpp"
 #include "enc_index.pb.h"
+#include "nnxx/nn.h"
 
 #include <fstream>
 #include <iomanip>
@@ -19,7 +20,8 @@ Client::Client (std::string server_name_,
 			   	const Elgamal::PublicKey &pubt_):	server_name{server_name_}, 
 													port{port_},
 												   	prvt{prvt_}, 
-													pubt{pubt_}{
+													pubt{pubt_},
+													client_socket{nnxx::SP, nnxx::REQ}{
 
 	std::ifstream ifs{query_file_name_};
 	if(!ifs){
@@ -35,24 +37,27 @@ Client::Client (std::string server_name_,
 		query.push_back(temp);
 	}
 	
-	log.information("--------------------------------------------------");
-	log.information("Query size: " + std::to_string(query_size));
-	log.information("Alph  size: " + std::to_string(alph_size));
-
 	std::string query_vals;
 	for(auto &val: query)
 		query_vals += std::to_string(val) + ", ";
+
+	log.information("--------------------------------------------------");
+	log.information("Query size: " + std::to_string(query_size));
+	log.information("Alph  size: " + std::to_string(alph_size));
 	log.information("Query: " + query_vals);
 
+	start_server();
+}
 
-	nnxx::socket client_socket { nnxx::SP, nnxx::REQ };
+void Client::start_server(){
+
 	client_socket.connect("tcp://" + server_name + ":" + std::to_string(port));
 
 	QueryConfig query_config;
 	query_config.set_pub_key( pubt.getStr() );
 	query_config.set_query_size(query_size);
 	client_socket.send(query_config.SerializeAsString());
-	
+
 	TextConfig text_config; 
 	text_config.ParseFromString( nnxx::to_string(client_socket.recv()) );
 
@@ -60,15 +65,30 @@ Client::Client (std::string server_name_,
 	log.information("lg_sigma: " + std::to_string(text_config.lg_sigma() ));
 	log.information("text_len: " + std::to_string(text_config.text_len() ));
 
-	int lg_sigma = text_config.lg_sigma();
-	int text_len = text_config.text_len();
-	int array_len = text_len * 2;
+	lg_sigma = text_config.lg_sigma();
+	text_len = text_config.text_len();
+	array_len = text_len * 2;
+
+	/*
+	 *int lpos = 0;
+	 *int rpos = text_len-1;
+	 */
 
 	for(auto &v: query){
-		log.information("------------------------------ Query: " + std::to_string(v));
+		log.information("================================================== Query: " + std::to_string(v));
 
 		int query_val = v;
-		int pos = 0;
+	 	int lpos = 0;
+	 	int rpos = text_len-1;
+
+		lpos = query_pos(lpos, query_val);
+		rpos = query_pos(rpos, query_val);
+
+		cout << "Resultado Final ========================================================================== : (query: " << v << ") " << lpos << "--" << rpos << endl;
+	}
+}
+
+int Client::query_pos(int pos, int query_val){
 
 		for(int i=0; i<lg_sigma; i++, query_val >>= 1){
 			int real_pos = pos;
@@ -77,10 +97,9 @@ Client::Client (std::string server_name_,
 			pos += (bit == 0) ? 0: (text_len);
 
 			log.information(std::to_string(i) + " (vi) ------------------------------> pos: " + std::to_string(real_pos) + " --- query_pos: " + std::to_string(pos) + " --- " + std::to_string(bit));
-			log.information("Plain \t\tCipher");
+			log.debug("Plain \t\tCipher");
 
 			EncIndex enc_index;
-
 			for(int j=0; j < array_len; j++){
 				Zn zn = (j == pos)? 1: 0; 
 
@@ -91,11 +110,11 @@ Client::Client (std::string server_name_,
 
 				Zn rzn;
 				prvt.dec(rzn, ct);
-				log.information(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]");
+				log.debug(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]");
 			}
 
 			client_socket.send( enc_index.SerializeAsString() );
-			
+
 			QueryResult query_result;
 			query_result.ParseFromString(nnxx::to_string(client_socket.recv()));
 
@@ -109,7 +128,6 @@ Client::Client (std::string server_name_,
 
 			pos = zres.getUint64();
 		}
+	return pos;
 
-		cout << "Resultado Final ========================================================================== : (query: " << v << ") " << pos << endl;
-	}
 }
