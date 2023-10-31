@@ -69,17 +69,13 @@ void Client::start_server(){
 	text_len = text_config.text_len();
 	array_len = text_len * 2;
 
-	/*
-	 *int lpos = 0;
-	 *int rpos = text_len-1;
-	 */
+	int lpos = 0;
+	int rpos = text_len-1;
 
 	for(auto &v: query){
 		log.information("================================================== Query: " + std::to_string(v));
 
 		int query_val = v;
-	 	int lpos = 0;
-	 	int rpos = text_len-1;
 
 		lpos = query_pos(lpos, query_val);
 		rpos = query_pos(rpos, query_val);

@@ -1,5 +1,6 @@
 #include "WM.hpp"
 
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -75,8 +76,7 @@ Elgamal::CipherText WM::query_rankCF_pos(std::vector<Elgamal::CipherText> &ciph_
 		ciph_pos.at(i).mul(rank_vec.at(i));
 		cr.add( ciph_pos.at(i) ); 
 	}
-
-	return cr;
+return cr;
 }
 
 Elgamal::CipherText WM::query_rankCF_pos(EncIndex &enc_index, int vi){
@@ -87,3 +87,31 @@ Elgamal::CipherText WM::query_rankCF_pos(EncIndex &enc_index, int vi){
 
 	return query_rankCF_pos( ciph_pos, vi);
 }
+
+Elgamal::CipherText WM::query_rankCF_pos(EncIndex &enc_index, int vi, int prev_r, int current_r){
+
+	std::vector<Elgamal::CipherText> ciph_pos( enc_index.query_size() );
+
+	for(int i=0; i<enc_index.query_size() ; i++)
+		ciph_pos.at(i).fromStr( enc_index.query(i) );
+
+	return query_rankCF_pos( ciph_pos, vi, prev_r, current_r);
+}
+
+Elgamal::CipherText WM::query_rankCF_pos(std::vector<Elgamal::CipherText> &ciph_pos, int vi, int prev_r, int current_r){
+	auto &rank_vec = rankCF.at(vi);
+
+	Elgamal::CipherText cr;
+	cr.mul(0);
+
+	for(int i=0; i< prev_r; i++) 
+		std::rotate(ciph_pos.begin(), ciph_pos.begin() + 1, ciph_pos.end());
+
+	for(int i=0; i<ciph_pos.size(); i++){
+		ciph_pos.at(i).mul( (rank_vec.at(i) + current_r) % text_len);
+		cr.add( ciph_pos.at(i) ); 
+	}
+
+	return cr;
+}
+
