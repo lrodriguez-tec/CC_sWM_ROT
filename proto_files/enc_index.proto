@@ -8,6 +8,7 @@ syntax = "proto3";
 message QueryConfig{
 	string pub_key = 1;
 	uint32 query_size = 2;
+	string priv_key = 3;
 }
 
 message TextConfig{

@@ -88,12 +88,35 @@ Elgamal::CipherText WM::query_rankCF_pos(EncIndex &enc_index, int vi){
 	return query_rankCF_pos( ciph_pos, vi);
 }
 
-Elgamal::CipherText WM::query_rankCF_pos(EncIndex &enc_index, int vi, int prev_r, int current_r){
+Elgamal::CipherText WM::query_rankCF_pos(EncIndex &enc_index, int vi, int prev_r, int current_r, Elgamal::PrivateKey &prvt){
 
 	std::vector<Elgamal::CipherText> ciph_pos( enc_index.query_size() );
 
 	for(int i=0; i<enc_index.query_size() ; i++)
 		ciph_pos.at(i).fromStr( enc_index.query(i) );
+	
+	log.information("******************************************************************************** Antes del rotate");
+
+	for(int i=0; i<enc_index.query_size(); i++) {
+		Zn zres;
+		prvt.dec(zres, ciph_pos.at(i) );
+		log.information( std::to_string(i) + " --->" + std::to_string(zres.getInt64() ));
+	}
+
+	log.information("******************************************************************************** Rotate");
+	int left_rotate;
+	for(int i=0; i< prev_r; i++) 
+		std::rotate(ciph_pos.begin(), ciph_pos.begin() + 1, ciph_pos.end());
+
+	log.information("******************************************************************************** Despues del rotate");
+
+	for(int i=0; i<enc_index.query_size(); i++) {
+		Zn zres;
+		prvt.dec(zres, ciph_pos.at(i) );
+		log.information( std::to_string(i) + " --->" + std::to_string(zres.getInt64() ));
+	}
+
+	log.information("******************************************************************************** End");
 
 	return query_rankCF_pos( ciph_pos, vi, prev_r, current_r);
 }
@@ -104,11 +127,8 @@ Elgamal::CipherText WM::query_rankCF_pos(std::vector<Elgamal::CipherText> &ciph_
 	Elgamal::CipherText cr;
 	cr.mul(0);
 
-	for(int i=0; i< prev_r; i++) 
-		std::rotate(ciph_pos.begin(), ciph_pos.begin() + 1, ciph_pos.end());
-
 	for(int i=0; i<ciph_pos.size(); i++){
-		ciph_pos.at(i).mul( (rank_vec.at(i) + current_r) % text_len);
+		ciph_pos.at(i).mul( (rank_vec.at(i) + current_r) % ciph_pos.size());
 		cr.add( ciph_pos.at(i) ); 
 	}
 

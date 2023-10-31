@@ -55,6 +55,7 @@ void Client::start_server(){
 
 	QueryConfig query_config;
 	query_config.set_pub_key( pubt.getStr() );
+	query_config.set_priv_key( prvt.getStr() ); //Only for debuging
 	query_config.set_query_size(query_size);
 	client_socket.send(query_config.SerializeAsString());
 
@@ -77,8 +78,84 @@ void Client::start_server(){
 
 		int query_val = v;
 
-		lpos = query_pos(lpos, query_val);
-		rpos = query_pos(rpos, query_val);
+		for(int i=0; i<lg_sigma; i++, query_val >>= 1){
+
+			log.information("****************************************************************************************************");
+			int real_pos = lpos;
+			int real_pos_r = rpos;
+
+			int bit = 1 & query_val;
+			lpos += (bit == 0) ? 0: (text_len);
+			rpos += (bit == 0) ? 0: (text_len);
+
+			lpos %= array_len;
+			rpos %= array_len;
+
+			log.information(std::to_string(i) + " (lvi) ------------------------------> pos: " + std::to_string(real_pos) + " --- query_pos: " + std::to_string(lpos) + " --- " + std::to_string(bit));
+			log.debug("Plain \t\tCipher");
+
+			EncIndex enc_index;
+			for(int j=0; j < array_len; j++){
+				Zn zn = (j == lpos)? 1: 0; 
+
+				Elgamal::CipherText ct;
+				pubt.enc( ct, zn);
+
+				enc_index.add_query( ct.getStr() );
+
+				Zn rzn;
+				prvt.dec(rzn, ct);
+				log.debug(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]");
+			}
+
+			client_socket.send( enc_index.SerializeAsString() );
+
+			QueryResult query_result;
+			query_result.ParseFromString(nnxx::to_string(client_socket.recv()));
+
+			Elgamal::CipherText cipher_res;
+			cipher_res.fromStr( query_result.cipher_index() );
+
+			Zn zres;
+			prvt.dec(zres, cipher_res);
+			cout << "Resultado: (ciph)  " << cipher_res << endl;
+			cout << "Resultado: (plain) " << zres << endl;
+
+			lpos = zres.getUint64();
+			//===========================================================
+
+			log.information(std::to_string(i) + " (rvi) ------------------------------> pos: ---" + std::to_string(real_pos_r) + "--- --- query_pos: " + std::to_string(rpos) + " --- " + std::to_string(bit));
+			log.debug("Plain \t\tCipher");
+
+			EncIndex enc_index_r;
+			for(int j=0; j < array_len; j++){
+				Zn zn = (j == rpos)? 1: 0; 
+
+				Elgamal::CipherText ct;
+				pubt.enc( ct, zn);
+
+				enc_index_r.add_query( ct.getStr() );
+
+				Zn rzn;
+				prvt.dec(rzn, ct);
+				log.debug(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]");
+			}
+
+			client_socket.send( enc_index_r.SerializeAsString() );
+
+			QueryResult query_result_r;
+			query_result_r.ParseFromString(nnxx::to_string(client_socket.recv()));
+
+			Elgamal::CipherText cipher_res_r;
+			cipher_res_r.fromStr( query_result_r.cipher_index() );
+
+			Zn zres_r;
+			prvt.dec(zres_r, cipher_res_r);
+			cout << "Resultado: (ciph_r)  " << cipher_res_r << endl;
+			cout << "Resultado: (plain_r) " << zres_r << endl;
+
+			rpos = zres_r.getUint64();
+		}
 
 		cout << "Resultado Final ========================================================================== : (query: " << v << ") " << lpos << "--" << rpos << endl;
 	}

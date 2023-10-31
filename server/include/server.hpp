@@ -12,7 +12,7 @@ class Server {
 		virtual ~Server (){}
 
 		void start_server();
-		void attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt);
+		void attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, Elgamal::PrivateKey &prvt);
 
 	private:
 

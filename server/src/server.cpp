@@ -21,8 +21,9 @@ Server::Server (int port_, std::string file_name_) :
 														array_len{ text_len * 2},
 														rd{},
 														//gen{rd()},
-														gen{1},
-														distrib{0, text_len-1},
+														gen{2},
+														distrib{0, array_len - 1},
+														//distrib{0,0},
 														serv_socket{nnxx::SP, nnxx::REP} {
 	std::cout << wm << std::endl;
 	start_server();
@@ -40,8 +41,12 @@ void Server::start_server(){
 		Elgamal::PublicKey pubt;
 		pubt.setStr(query_config.pub_key());
 
+		Elgamal::PrivateKey prvt;
+		prvt.setStr(query_config.priv_key());
+
 		log.information("================================================== Attending query");
 		log.information("Publicey (pubt): " + pubt.getStr() );
+		log.information("Private  (prvt): " + prvt.getStr() );
 		log.information("Query size     : " + std::to_string(query_config.query_size()));
 
 		TextConfig text_config;
@@ -49,11 +54,11 @@ void Server::start_server(){
 		text_config.set_text_len( text_len );
 		serv_socket.send( text_config.SerializeAsString() );
 
-		attend_query( query_config, pubt);
+		attend_query( query_config, pubt, prvt);
 	}
 }
 
-void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt){
+void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, Elgamal::PrivateKey &prvt){
 
 	int prev_r=0;
 	int current_r= distrib(gen);
@@ -62,28 +67,28 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt){
 	for(int i=0; i< query_config.query_size(); i++){
 		log.information(std::to_string(i) + " ================================================== Query" );
 
-		for(int left_right=0; left_right < 2; left_right++){
-			for(int vi=0; vi < lg_sigma; vi++){
+		for(int vi=0; vi < lg_sigma; vi++){
+
+			if(vi == (lg_sigma-1) && i == (query_config.query_size() - 1) )
+				current_r = 0;
+
+			for(int left_right=0; left_right < 2; left_right++){
 				log.information(std::to_string(vi) + " (vi) ---> Query" );
 
 				log.information("-------------------------------------------------- Current r: " + std::to_string(current_r) + " ---- Prev r: " + std::to_string(prev_r));
 				EncIndex enc_index;
 				enc_index.ParseFromString( nnxx::to_string( serv_socket.recv() ) );
 
-				//for (int j = 0; j < enc_index.query_size(); ++j)
-					//log.information(std::to_string(j) + " - " + "[" + enc_index.query(j) + "]");
-
 				QueryResult query_res;
-				Elgamal::CipherText res = wm.query_rankCF_pos( enc_index,  vi, prev_r, current_r);
-
-				prev_r = current_r;
-				current_r = distrib(gen);
-				//current_r= 0;
+				Elgamal::CipherText res = wm.query_rankCF_pos( enc_index,  vi, prev_r, current_r, prvt);
 
 				query_res.set_cipher_index( res.getStr() );
 				log.information( "Sending ciph pos: " + query_res.cipher_index() );
 				serv_socket.send( query_res.SerializeAsString() );
 			}
+
+			prev_r = current_r;
+			current_r = distrib(gen);
 		}
 	}
 }
