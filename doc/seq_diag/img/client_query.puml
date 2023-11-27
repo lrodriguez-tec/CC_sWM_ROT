@@ -1,0 +1,49 @@
+@startuml
+
+skinparam ParticipantPadding 300
+skinparam BoxPadding 200
+
+box
+	actor Client
+end box
+
+box 
+	actor Server
+end box
+
+
+Server -> Server : Cargar RankCF matrix
+Client -> Client : Cargar Query
+
+== Query ==
+
+loop por cada caracter del query
+	loop por cada bit del caracter
+		Client -> Client: Generar indices
+		Client -> Client: Cifrar indices
+		Client -> Server: query(indice cifrado)
+
+		activate Server
+		Server -> Server: Remover factor r previo
+		note right
+			rotación
+		end note
+		Server -> Server: Consultar indice en RankCF 
+		note right
+			uso de homomorphic encryption
+		end note
+		Server -> Server: Agregar nuevo factor r al resultado
+
+		Server --> Client: Resultado.
+		note right
+			La respuesta va cifrada con llave del Client
+			Solo el cliente puede conocer el indice del query y el resultado.
+			El servidor agrega un factor r para ofuscar resultados parciales.
+		end note
+
+		deactivate Server
+	end
+end
+
+
+@enduml

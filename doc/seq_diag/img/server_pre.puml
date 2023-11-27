@@ -1,0 +1,23 @@
+@startuml
+
+actor Server
+
+== PreComputation ==
+
+Server -> Server: Sequence_to_Ints
+Activate Server
+Deactivate Server
+
+Server -[#red]> Server: Compute BWT
+Activate Server
+Deactivate Server
+
+Server -[#blue]> Server: Compute WaveletMatrix from BWT
+Activate Server
+Deactivate Server
+
+Server -[#green]> Server: Compute RankCF from WaveleteMatrix
+Activate Server
+Deactivate Server
+
+@enduml
