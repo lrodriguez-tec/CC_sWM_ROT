@@ -1,5 +1,6 @@
 #pragma once
 
+#include <random>
 #include <string>
 #include "WM.hpp"
 #include "nnxx/socket.h"
@@ -11,7 +12,7 @@ class Server {
 		virtual ~Server (){}
 
 		void start_server();
-		void attend_query(QueryConfig &query_config);
+		void attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, Elgamal::PrivateKey &prvt);
 
 	private:
 
@@ -24,6 +25,11 @@ class Server {
 		int lg_sigma;
 		int text_len;
 		int array_len;
+
+		//https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
+		std::random_device rd;  // a seed source for the random number engine
+		std::mt19937 gen; 		// mersenne_twister_engine seeded with rd()
+		std::uniform_int_distribution<> distrib;
 
 		nnxx::socket serv_socket;
 };

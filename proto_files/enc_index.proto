@@ -8,6 +8,7 @@ syntax = "proto3";
 message QueryConfig{
 	string pub_key = 1;
 	uint32 query_size = 2;
+	string priv_key = 3;
 }
 
 message TextConfig{
@@ -19,6 +20,11 @@ message EncIndex {
   repeated string query = 2;
 }
 
- message QueryResult {
+message QueryResult {
      string cipher_index = 1;
- }
+}
+
+message FinishCommunication{
+	bool request_r = 1;
+	uint32 penultimate_r = 2;
+}

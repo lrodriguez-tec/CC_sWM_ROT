@@ -19,6 +19,9 @@ class WM {
 		Elgamal::CipherText query_rankCF_pos(std::vector<Elgamal::CipherText> &ciph_pos, int vi);
 		Elgamal::CipherText query_rankCF_pos(EncIndex &enc_index, int vi);
 
+		Elgamal::CipherText query_rankCF_pos(std::vector<Elgamal::CipherText> &ciph_pos, int vi, int prev_r, int current_r);
+		Elgamal::CipherText query_rankCF_pos(EncIndex &enc_index, int vi, int prev_r, int currenrt_r, Elgamal::PrivateKey  &prvt);
+
 		int get_text_len(){ return text_len; }
 		int get_lg_sigma(){ return lg_sigma; }
 
