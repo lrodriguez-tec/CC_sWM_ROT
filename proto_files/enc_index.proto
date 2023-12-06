@@ -20,6 +20,11 @@ message EncIndex {
   repeated string query = 2;
 }
 
- message QueryResult {
+message QueryResult {
      string cipher_index = 1;
- }
+}
+
+message FinishCommunication{
+	bool request_r = 1;
+	uint32 penultimate_r = 2;
+}

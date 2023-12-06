@@ -157,6 +157,17 @@ void Client::start_server(){
 			rpos = zres_r.getUint64();
 		}
 
+		FinishCommunication finish;
+		finish.set_request_r( lpos == rpos);
+		
+		if(lpos == rpos){
+			cout << "It is required to get penultimate_r" << endl;
+		}
+
+		client_socket.send( finish.SerializeAsString() );
+		FinishCommunication finish_res;
+		finish_res.ParseFromString( nnxx::to_string(client_socket.recv()) );
+
 		cout << "Resultado Final ========================================================================== : (query: " << v << ") " << lpos << "--" << rpos << endl;
 	}
 }
