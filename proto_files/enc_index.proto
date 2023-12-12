@@ -11,18 +11,23 @@ message QueryConfig{
 	string priv_key = 3;
 }
 
+
 message TextConfig{
 	uint32 lg_sigma = 1;
 	uint32 text_len = 2;
 }
 
+
 message EncIndex {
+  bool mismatch = 1;
   repeated string query = 2;
 }
+
 
 message QueryResult {
      string cipher_index = 1;
 }
+
 
 message FinishCommunication{
 	bool request_r = 1;

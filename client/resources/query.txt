@@ -1,3 +1,11 @@
 4
 26
-1 18 2 3
+1 18 2 1
+
+1 18 2 1
+//Esta consulta se encuentra bien
+
+13 1 18 2 
+//Error en primer caracter
+
+1 18 2 1

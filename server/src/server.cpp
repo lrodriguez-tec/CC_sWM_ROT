@@ -62,14 +62,18 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, E
 
 	int prev_r=0;
 	int current_r= distrib(gen);
-	//int current_r= 0;
+
+	int cur_char_r = 0;
+	int prev_char_r[] = {0,0,0};
+	int prev_char_r_index = 0;
 
 	for(int i=0; i< query_config.query_size(); i++){
-		log.information(std::to_string(i) + " ================================================== Query" );
+
+		log.information(std::to_string(i) + " ================================================== NEXT QUERY CHAR ==================================================" );
 
 		for(int vi=0; vi < lg_sigma; vi++){
 
-			if(vi == (lg_sigma-1) && i == (query_config.query_size() - 1) )
+			if(vi == (lg_sigma-1) && i == (query_config.query_size() - 1) ) //remove r for the last iteration.
 				current_r = 0;
 
 			for(int left_right=0; left_right < 2; left_right++){
@@ -80,6 +84,16 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, E
 				enc_index.ParseFromString( nnxx::to_string( serv_socket.recv() ) );
 
 				QueryResult query_res;
+
+				if(enc_index.mismatch()){
+					prev_char_r_index = (prev_char_r_index + 1) % 3;
+
+					cout << "===============***** MISMATCH!!!" <<  endl;
+					cout << "===============***** using: " << prev_char_r[prev_char_r_index] <<  endl;
+					prev_r = prev_char_r[prev_char_r_index];
+					cout << " -> corrigiendo: ----------------------------------------------- Current r: " + std::to_string(current_r) + " ---- Prev r: " + std::to_string(prev_r) << endl;
+				}
+
 				Elgamal::CipherText res = wm.query_rankCF_pos( enc_index,  vi, prev_r, current_r, prvt);
 
 				query_res.set_cipher_index( res.getStr() );
@@ -89,6 +103,30 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, E
 
 			prev_r = current_r;
 			current_r = distrib(gen);
+		}
+
+		prev_char_r[ prev_char_r_index] = prev_r;
+		prev_char_r_index = (prev_char_r_index + 1) % 3;
+
+		cout << "Current prev_char_r: ";
+		for(auto &v: prev_char_r){
+			cout << v << ", ";
+		}
+		cout << endl;
+
+		if(i == (query_config.query_size() - 1) ){ //finish message, from client. Client should ask for penultimate r
+			FinishCommunication finish;
+			finish.ParseFromString( nnxx::to_string(serv_socket.recv()) );
+
+			FinishCommunication finish_res;
+
+			if( finish.request_r() ){
+				prev_char_r_index = (prev_char_r_index + 1) % 3;
+				finish_res.set_penultimate_r( prev_char_r[prev_char_r_index] );
+				log.information("Client solicitate penultimate_r");
+			}
+
+			serv_socket.send( finish_res.SerializeAsString() );
 		}
 	}
 }

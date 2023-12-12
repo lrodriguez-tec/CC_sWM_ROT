@@ -73,12 +73,19 @@ void Client::start_server(){
 	int lpos = 0;
 	int rpos = text_len-1;
 
+	int prev_lpos = lpos;
+	int prev_rpos = rpos;
+
+	bool mismatch = false;
+	bool last_mismatch = false;
+
 	for(auto &v: query){
 		log.information("================================================== Query: " + std::to_string(v));
 
 		int query_val = v;
 
 		for(int i=0; i<lg_sigma; i++, query_val >>= 1){
+			last_mismatch = false;
 
 			log.information("****************************************************************************************************");
 			int real_pos = lpos;
@@ -95,6 +102,9 @@ void Client::start_server(){
 			log.debug("Plain \t\tCipher");
 
 			EncIndex enc_index;
+			enc_index.set_mismatch( mismatch );
+			mismatch = false;
+
 			for(int j=0; j < array_len; j++){
 				Zn zn = (j == lpos)? 1: 0; 
 
@@ -157,19 +167,40 @@ void Client::start_server(){
 			rpos = zres_r.getUint64();
 		}
 
-		FinishCommunication finish;
-		finish.set_request_r( lpos == rpos);
-		
-		if(lpos == rpos){
-			cout << "It is required to get penultimate_r" << endl;
+		cout << "Resultado Final ========================================================================== : (query: " << v << ") " << lpos << "--" << rpos << endl;
+
+		if( lpos == rpos){
+			cout << "Se encontro un mistatch. Se usaran los prev_lpos y prev_rpos: (" << prev_lpos << ", " << prev_rpos << ") para continuar con la siguiente letra" << endl;
+			last_mismatch = mismatch = true;
+
+			lpos = prev_lpos;
+			rpos = prev_rpos;
 		}
 
-		client_socket.send( finish.SerializeAsString() );
-		FinishCommunication finish_res;
-		finish_res.ParseFromString( nnxx::to_string(client_socket.recv()) );
-
-		cout << "Resultado Final ========================================================================== : (query: " << v << ") " << lpos << "--" << rpos << endl;
+		prev_lpos = lpos;
+		prev_rpos = rpos;
 	}
+
+	FinishCommunication finish;
+	finish.set_request_r( last_mismatch );
+	cout << "last mismatch : "  << last_mismatch << endl;
+
+
+	if(last_mismatch){
+		cout << "It is required to get penultimate_r" << endl;
+	}
+
+	client_socket.send( finish.SerializeAsString() );
+	FinishCommunication finish_res;
+	finish_res.ParseFromString( nnxx::to_string(client_socket.recv()) );
+	int penultimate_r = finish_res.penultimate_r();
+
+	log.information("Penultimate_r: " + std::to_string(penultimate_r));
+
+	lpos = lpos - penultimate_r % array_len;
+	rpos = rpos - penultimate_r % array_len;
+
+	cout << "Resultado Final ========================================================================== : " << lpos << ", " << rpos << endl;
 }
 
 int Client::query_pos(int pos, int query_val){

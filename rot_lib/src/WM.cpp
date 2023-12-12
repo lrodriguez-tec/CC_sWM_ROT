@@ -100,7 +100,9 @@ Elgamal::CipherText WM::query_rankCF_pos(EncIndex &enc_index, int vi, int prev_r
 	for(int i=0; i<enc_index.query_size(); i++) {
 		Zn zres;
 		prvt.dec(zres, ciph_pos.at(i) );
-		log.information( std::to_string(i) + " --->" + std::to_string(zres.getInt64() ));
+		if( 1 == zres.getInt64())
+			std::cout << i << std::endl;
+		//log.information( std::to_string(i) + " --->" + std::to_string(zres.getInt64() ));
 	}
 
 	log.information("******************************************************************************** Rotate");
@@ -113,7 +115,9 @@ Elgamal::CipherText WM::query_rankCF_pos(EncIndex &enc_index, int vi, int prev_r
 	for(int i=0; i<enc_index.query_size(); i++) {
 		Zn zres;
 		prvt.dec(zres, ciph_pos.at(i) );
-		log.information( std::to_string(i) + " --->" + std::to_string(zres.getInt64() ));
+		if( 1 == zres.getInt64())
+			std::cout << i << std::endl;
+		//log.information( std::to_string(i) + " --->" + std::to_string(zres.getInt64() ));
 	}
 
 	log.information("******************************************************************************** End");
