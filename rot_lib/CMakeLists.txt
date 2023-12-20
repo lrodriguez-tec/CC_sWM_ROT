@@ -7,6 +7,7 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ../proto_files/enc_index.proto)
 
 add_library(rot
 	src/WM.cpp
+	src/ROT.cpp
 	${PROTO_SRCS}
 	${PROTO_HDRS} 
 )
