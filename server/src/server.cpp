@@ -1,5 +1,6 @@
 #include "server.hpp"
 #include "El_Gammal_config.hpp"
+#include "ROT.hpp"
 #include "enc_index.pb.h"
 
 #include <nnxx/reqrep.h>
@@ -9,6 +10,7 @@
 #include <sstream>
 #include <string>
 #include <iomanip>
+#include <vector>
 
 using namespace std;
 
@@ -25,7 +27,11 @@ Server::Server (int port_, std::string file_name_) :
 														distrib{0, array_len - 1},
 														//distrib{0,0},
 														serv_socket{nnxx::SP, nnxx::REP} {
-	std::cout << wm << std::endl;
+
+	std::stringstream ss;
+	ss << wm;
+	log.information(ss.str());
+
 	start_server();
 }
 
@@ -67,13 +73,15 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, E
 	int prev_char_r[] = {0,0,0};
 	int prev_char_r_index = 0;
 
+	ROT rot;
+
 	for(int i=0; i< query_config.query_size(); i++){
 
 		log.information(std::to_string(i) + " ================================================== NEXT QUERY CHAR ==================================================" );
 
 		for(int vi=0; vi < lg_sigma; vi++){
 
-			if(vi == (lg_sigma-1) && i == (query_config.query_size() - 1) ) //remove r for the last iteration.
+			if(vi == (lg_sigma-1) && i == (query_config.query_size() - 1) ) //use 0 as r for the last iteration (do not use a random r).
 				current_r = 0;
 
 			for(int left_right=0; left_right < 2; left_right++){
@@ -88,13 +96,15 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, E
 				if(enc_index.mismatch()){
 					prev_char_r_index = (prev_char_r_index + 1) % 3;
 
-					cout << "===============***** MISMATCH!!!" <<  endl;
-					cout << "===============***** using: " << prev_char_r[prev_char_r_index] <<  endl;
+					log.information("===============***** MISMATCH!!!",__FILE__,__LINE__);
+					log.information("===============***** using: " + std::to_string(prev_char_r[prev_char_r_index]),__FILE__,__LINE__);
+
 					prev_r = prev_char_r[prev_char_r_index];
 					cout << " -> corrigiendo: ----------------------------------------------- Current r: " + std::to_string(current_r) + " ---- Prev r: " + std::to_string(prev_r) << endl;
 				}
 
-				Elgamal::CipherText res = wm.query_rankCF_pos( enc_index,  vi, prev_r, current_r, prvt);
+				std::vector<Elgamal::CipherText> enc_pos = rot.req_query(enc_index, prev_r, prvt); //remove r
+				Elgamal::CipherText res = rot.RanOT(enc_pos, vi, current_r, wm);				   //new result with new random_r
 
 				query_res.set_cipher_index( res.getStr() );
 				log.information( "Sending ciph pos: " + query_res.cipher_index() );
@@ -108,11 +118,12 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, E
 		prev_char_r[ prev_char_r_index] = prev_r;
 		prev_char_r_index = (prev_char_r_index + 1) % 3;
 
-		cout << "Current prev_char_r: ";
-		for(auto &v: prev_char_r){
-			cout << v << ", ";
-		}
-		cout << endl;
+		std::stringstream ss;
+		ss << "Current prev_char_r: ";
+		for(auto &v: prev_char_r)
+			ss << v << ", ";
+		log.information(ss.str(),__FILE__,__LINE__);
+
 
 		if(i == (query_config.query_size() - 1) ){ //finish message, from client. Client should ask for penultimate r
 			FinishCommunication finish;

@@ -1,6 +1,7 @@
 #include "client.hpp"
 #include "enc_index.pb.h"
 #include "nnxx/nn.h"
+#include "ROT.hpp"
 
 #include <fstream>
 #include <iomanip>
@@ -78,6 +79,7 @@ void Client::start_server(){
 
 	bool mismatch = false;
 	bool last_mismatch = false;
+	ROT rot;
 
 	for(auto &v: query){
 		log.information("================================================== Query: " + std::to_string(v));
@@ -105,18 +107,8 @@ void Client::start_server(){
 			enc_index.set_mismatch( mismatch );
 			mismatch = false;
 
-			for(int j=0; j < array_len; j++){
-				Zn zn = (j == lpos)? 1: 0; 
-
-				Elgamal::CipherText ct;
-				pubt.enc( ct, zn);
-
-				enc_index.add_query( ct.getStr() );
-
-				Zn rzn;
-				prvt.dec(rzn, ct);
-				log.debug(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]");
-			}
+			log.information("===== prep_query lpos");
+			rot.prep_query(lpos, array_len, prvt, pubt, enc_index);
 
 			client_socket.send( enc_index.SerializeAsString() );
 
@@ -138,18 +130,8 @@ void Client::start_server(){
 			log.debug("Plain \t\tCipher");
 
 			EncIndex enc_index_r;
-			for(int j=0; j < array_len; j++){
-				Zn zn = (j == rpos)? 1: 0; 
-
-				Elgamal::CipherText ct;
-				pubt.enc( ct, zn);
-
-				enc_index_r.add_query( ct.getStr() );
-
-				Zn rzn;
-				prvt.dec(rzn, ct);
-				log.debug(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]");
-			}
+			log.information("===== prep_query rpos");
+			rot.prep_query(rpos, array_len, prvt, pubt, enc_index_r);
 
 			client_socket.send( enc_index_r.SerializeAsString() );
 

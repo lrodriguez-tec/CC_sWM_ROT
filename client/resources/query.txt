@@ -1,6 +1,10 @@
 4
 26
 1 18 2 1
+//Esta consulta se encuentra bien
+
+1 18 3 2
+//Error segundo caracter
 
 1 18 2 1
 //Esta consulta se encuentra bien
