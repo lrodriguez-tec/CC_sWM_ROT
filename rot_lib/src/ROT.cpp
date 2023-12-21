@@ -42,7 +42,7 @@ std::vector<Elgamal::CipherText> ROT::req_query(EncIndex &enc_index, int r, Elga
 		if( 1 == zres.getInt64())
 			after_rotate = i;
 	}
-	log.debug("==================== Rotate : (" + std::to_string(prev_rotate) + " -> " + std::to_string(after_rotate) + ")");
+	log.information("==================== Rotate : (" + std::to_string(prev_rotate) + " -> " + std::to_string(after_rotate) + ")");
 
 	return ciph_pos;
 }

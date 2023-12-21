@@ -23,7 +23,7 @@ Server::Server (int port_, std::string file_name_) :
 														array_len{ text_len * 2},
 														rd{},
 														//gen{rd()},
-														gen{2},
+														gen{3},
 														distrib{0, array_len - 1},
 														//distrib{0,0},
 														serv_socket{nnxx::SP, nnxx::REP} {
@@ -48,7 +48,7 @@ void Server::start_server(){
 		pubt.setStr(query_config.pub_key());
 
 		Elgamal::PrivateKey prvt;
-		prvt.setStr(query_config.priv_key());
+		prvt.setStr(query_config.priv_key());	//for debugging
 
 		log.information("================================================== Attending query");
 		log.information("Publicey (pubt): " + pubt.getStr() );
@@ -80,27 +80,27 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, E
 		log.information(std::to_string(i) + " ================================================== NEXT QUERY CHAR ==================================================" );
 
 		for(int vi=0; vi < lg_sigma; vi++){
+			log.information(std::to_string(vi) + " (vi) ---> Query" );
 
 			if(vi == (lg_sigma-1) && i == (query_config.query_size() - 1) ) //use 0 as r for the last iteration (do not use a random r).
 				current_r = 0;
 
 			for(int left_right=0; left_right < 2; left_right++){
-				log.information(std::to_string(vi) + " (vi) ---> Query" );
-
-				log.information("-------------------------------------------------- Current r: " + std::to_string(current_r) + " ---- Prev r: " + std::to_string(prev_r));
+				log.information(std::string{(left_right? "** left " : "** right")} + " : -------------------- Current r: " + std::to_string(current_r) + " ---- Prev r: " + std::to_string(prev_r));
+				
 				EncIndex enc_index;
 				enc_index.ParseFromString( nnxx::to_string( serv_socket.recv() ) );
 
 				QueryResult query_res;
 
 				if(enc_index.mismatch()){
-					prev_char_r_index = (prev_char_r_index + 1) % 3;
+					prev_r = prev_char_r[(prev_char_r_index + 1) % 3];
+					prev_char_r_index = (prev_char_r_index + 2) % 3;
 
 					log.information("===============***** MISMATCH!!!",__FILE__,__LINE__);
-					log.information("===============***** using: " + std::to_string(prev_char_r[prev_char_r_index]),__FILE__,__LINE__);
+					log.information("===============***** using: " + std::to_string(prev_r),__FILE__,__LINE__);
 
-					prev_r = prev_char_r[prev_char_r_index];
-					cout << " -> corrigiendo: ----------------------------------------------- Current r: " + std::to_string(current_r) + " ---- Prev r: " + std::to_string(prev_r) << endl;
+					log.information(" -> corrigiendo: ------------ Current r: " + std::to_string(current_r) + " ---- Prev r: " + std::to_string(prev_r));
 				}
 
 				std::vector<Elgamal::CipherText> enc_pos = rot.req_query(enc_index, prev_r, prvt); //remove r
