@@ -80,6 +80,7 @@ void Client::start_server(){
 	bool mismatch = false;
 	bool last_mismatch = false;
 	ROT rot;
+	std::string query_r{};
 
 	for(auto &v: query){
 		log.information("================================================== Query: " + std::to_string(v));
@@ -157,6 +158,9 @@ void Client::start_server(){
 
 			lpos = prev_lpos;
 			rpos = prev_rpos;
+			query_r += "<" + std::to_string(v) + ">";
+		}else{
+			query_r += std::to_string(v) + "-";
 		}
 
 		prev_lpos = lpos;
@@ -182,6 +186,7 @@ void Client::start_server(){
 	lpos = lpos - penultimate_r % array_len;
 	rpos = rpos - penultimate_r % array_len;
 
+	log.information("Query found: " + query_r);
 	cout << "Resultado Final ========================================================================== : " << lpos << ", " << rpos << endl;
 }
 
