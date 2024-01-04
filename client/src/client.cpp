@@ -116,6 +116,19 @@ void Client::start_server(){
 			QueryResult query_result;
 			query_result.ParseFromString(nnxx::to_string(client_socket.recv()));
 
+			if(query_result.reached_deletes()){
+				log.information( "deletes limit reached: last_r = " + std::to_string(query_result.last_r()));
+				log.information("Final result ========================================================================== prevs : " + std::to_string(prev_lpos) + ", " + std::to_string(prev_rpos));
+				lpos = (prev_lpos - query_result.last_r() + array_len) % array_len;
+				rpos = (prev_rpos - query_result.last_r() + array_len) % array_len;
+
+				log.information("Final result ========================================================================== : " + std::to_string(lpos) + ", " + std::to_string(rpos));
+
+				log.information("Query found: " + query_r);
+
+				exit(0);
+			}
+
 			Elgamal::CipherText cipher_res;
 			cipher_res.fromStr( query_result.cipher_index() );
 
@@ -183,11 +196,11 @@ void Client::start_server(){
 
 	log.information("Penultimate_r: " + std::to_string(penultimate_r));
 
-	lpos = lpos - penultimate_r % array_len;
-	rpos = rpos - penultimate_r % array_len;
+	lpos = (lpos - penultimate_r + array_len) % array_len;
+	rpos = (rpos - penultimate_r + array_len) % array_len;
 
 	log.information("Query found: " + query_r);
-	cout << "Resultado Final ========================================================================== : " << lpos << ", " << rpos << endl;
+	log.information("Final result ========================================================================== : " + std::to_string(lpos) + ", " + std::to_string(rpos));
 }
 
 int Client::query_pos(int pos, int query_val){

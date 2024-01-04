@@ -14,16 +14,17 @@
 
 using namespace std;
 
-Server::Server (int port_, std::string file_name_) : 
+Server::Server (int port_, std::string file_name_, int allowed_deletes_) : 
 														port{port_}, 
 														wm{file_name}, 
 														file_name{file_name_}, 
+														allowed_deletes{allowed_deletes_},
 														lg_sigma{ wm.get_lg_sigma()},
 														text_len{ wm.get_text_len()},
 														array_len{ text_len * 2},
 														rd{},
 														//gen{rd()},
-														gen{3},
+														gen{2},
 														distrib{0, array_len - 1},
 														//distrib{0,0},
 														serv_socket{nnxx::SP, nnxx::REP} {
@@ -50,7 +51,9 @@ void Server::start_server(){
 		Elgamal::PrivateKey prvt;
 		prvt.setStr(query_config.priv_key());	//for debugging
 
-		log.information("================================================== Attending query");
+		log.information("=============================================================================");
+		log.information("============================== Attending query ==============================");
+		log.information("=============================================================================");
 		log.information("Publicey (pubt): " + pubt.getStr() );
 		log.information("Private  (prvt): " + prvt.getStr() );
 		log.information("Query size     : " + std::to_string(query_config.query_size()));
@@ -73,6 +76,8 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, E
 	int prev_char_r[] = {0,0,0};
 	int prev_char_r_index = 0;
 
+	int current_deletes{0};
+
 	ROT rot;
 
 	for(int i=0; i< query_config.query_size(); i++){
@@ -94,13 +99,25 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, E
 				QueryResult query_res;
 
 				if(enc_index.mismatch()){
+					current_deletes++;
 					prev_r = prev_char_r[(prev_char_r_index + 1) % 3];
 					prev_char_r_index = (prev_char_r_index + 2) % 3;
 
-					log.information("===============***** MISMATCH!!!",__FILE__,__LINE__);
+					log.information("===============***** MISMATCH!!! : " + std::to_string(current_deletes),__FILE__,__LINE__);
 					log.information("===============***** using: " + std::to_string(prev_r),__FILE__,__LINE__);
 
 					log.information(" -> corrigiendo: ------------ Current r: " + std::to_string(current_r) + " ---- Prev r: " + std::to_string(prev_r));
+					log.information("Allowed deletes: " + std::to_string(allowed_deletes) + " --- Current deletes: " +  std::to_string(current_deletes));
+
+					if(allowed_deletes == (current_deletes-1)){
+						log.information("limit readed on allowed deletes");
+
+						QueryResult final_result;
+						final_result.set_reached_deletes(true);
+						final_result.set_last_r(prev_r);
+						serv_socket.send( final_result.SerializeAsString() );
+						return;
+					}
 				}
 
 				std::vector<Elgamal::CipherText> enc_pos = rot.req_query(enc_index, prev_r, prvt); //remove r

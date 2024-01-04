@@ -20,6 +20,6 @@ target_link_libraries(server_app
 file(COPY resources/ DESTINATION resources/)
 
 add_custom_target(runs
-	COMMAND server_app -i resources/sample.wm -p 12345
+	COMMAND server_app -i resources/sample.wm -p 12345 -d 1
 	COMMENT "================================================== Running Server"
 )

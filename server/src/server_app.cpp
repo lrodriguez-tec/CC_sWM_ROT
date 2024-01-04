@@ -24,6 +24,7 @@ class Server_app: public Application {
 		bool helpRequested;
 		std::string input_file;
 		int port;
+		int allowed_deletes = 1;
 
 	public:
 		Server_app(): helpRequested{false}, port{9999} {}
@@ -57,8 +58,12 @@ class Server_app: public Application {
 					.callback(OptionCallback<Server_app>(this, &Server_app::set_input_file)));
 
 			options.addOption(
+					Option("allowed_deletes", "d", "number of allowed deletes from user query")
+					.argument("<allowed_deletes>")
+					.callback(OptionCallback<Server_app>(this, &Server_app::set_allowed_deletes)));
+
+			options.addOption(
 					Option("server port number", "p", "port")
-					.required(false)
 					.argument("<port>")
 					.callback(OptionCallback<Server_app>(this, &Server_app::set_port)));
 		}
@@ -67,8 +72,11 @@ class Server_app: public Application {
 			input_file = value;
 		}
 
+		void set_allowed_deletes(const std::string& name, const std::string& value) { 
+			allowed_deletes = std::stoi(value);
+		}
+
 		void set_port(const std::string& name, const std::string& value) { 
-			log.information("Entra aqui: " + value);
 			port = std::stoi(value);
 		}
 
@@ -94,9 +102,10 @@ class Server_app: public Application {
 				log.information("Application options : " , 					__FILE__,__LINE__);
 				log.information("  -input_file_name  : " + input_file , 	__FILE__,__LINE__);
 				log.information("  -port             : " + std::to_string(port) , 	__FILE__,__LINE__);
+				log.information("  -allowed deletes  : " + std::to_string(allowed_deletes) , 	__FILE__,__LINE__);
 
 				Elgamal_sysInit();
-				Server server{port, input_file};
+				Server server{port, input_file, allowed_deletes};
 			}
 
 			return Application::EXIT_OK;
