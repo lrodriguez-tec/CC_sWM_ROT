@@ -26,6 +26,8 @@ message EncIndex {
 
 message QueryResult {
      string cipher_index = 1;
+	 bool   reached_deletes = 2;
+	 uint32 last_r = 3;
 }
 
 

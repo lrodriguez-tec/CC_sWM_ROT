@@ -8,7 +8,7 @@
 class Server {
 
 	public:
-		Server (int port_, std::string file_name_);
+		Server (int port_, std::string file_name_, int allowed_deletes_);
 		virtual ~Server (){}
 
 		void start_server();
@@ -25,6 +25,8 @@ class Server {
 		int lg_sigma;
 		int text_len;
 		int array_len;
+
+		int allowed_deletes;
 
 		//https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
 		std::random_device rd;  // a seed source for the random number engine
