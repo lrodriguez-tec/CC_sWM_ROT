@@ -23,3 +23,8 @@ add_custom_target(runc
 	COMMAND client_app -i resources/query.txt -p 12345
 	COMMENT "================================================== Running Client"
 )
+
+add_custom_target(runc_01
+	COMMAND client_app -i resources/query_01.txt -p 12345
+	COMMENT "================================================== Running Client"
+)

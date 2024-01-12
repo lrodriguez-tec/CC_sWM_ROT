@@ -171,7 +171,7 @@ void Client::start_server(){
 
 			lpos = prev_lpos;
 			rpos = prev_rpos;
-			query_r += "<" + std::to_string(v) + ">";
+			query_r += "<" + std::to_string(v) + ">-";
 		}else{
 			query_r += std::to_string(v) + "-";
 		}

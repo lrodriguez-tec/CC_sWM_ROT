@@ -45,3 +45,5 @@ add_subdirectory(server)
 add_subdirectory(client)
 add_subdirectory(tests)
 add_subdirectory(rot_lib)
+add_subdirectory(tools)			#tools to generate BWT, WM and RankCF.
+add_subdirectory(lib_ngweight)	#library SA used only for testings and tools
