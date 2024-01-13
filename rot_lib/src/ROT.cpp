@@ -14,6 +14,7 @@ void ROT::prep_query(const int index, const int array_len, const Elgamal::Privat
 		Zn rzn;
 		prvt.dec(rzn, ct);
 		log.debug(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]");
+		log.information(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]");
 	}
 }
 
