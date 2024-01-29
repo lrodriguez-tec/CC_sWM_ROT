@@ -24,10 +24,10 @@ Server::Server (int port_, std::string file_name_, int allowed_deletes_) :
 														array_len{ text_len * 2},
 														rd{},
 														//gen{rd()},
-														gen{2},
-														distrib{0, array_len - 1},
+														gen{3},
+														distrib{0, array_len - 1}
 														//distrib{0,0},
-														serv_socket{nnxx::SP, nnxx::REP} {
+																					{
 
 	nserv_sock = nng::rep::open();
 
@@ -40,8 +40,8 @@ Server::Server (int port_, std::string file_name_, int allowed_deletes_) :
 
 void Server::start_server(){
 
-	serv_socket.bind("tcp://127.0.0.1:" + std::to_string(port));
-	nserv_sock.listen( "tcp://localhost:8000" );
+	std::string address = "tcp://localhost:" + std::to_string(port);
+	nserv_sock.listen( address.c_str() ) ;
 
 	while(true){
 

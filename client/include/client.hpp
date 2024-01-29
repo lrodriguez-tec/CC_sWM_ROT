@@ -10,7 +10,6 @@
 #include <mcl/ecparam.hpp>
 
 #include "El_Gammal_config.hpp"
-#include "nnxx/socket.h"
 
 #include "nngpp/error.h"
 #include "nngpp/msg.h"
@@ -48,6 +47,5 @@ class Client {
 		Elgamal::PrivateKey &prvt;
 		const Elgamal::PublicKey &pubt;
 
-		nnxx::socket client_socket;
 		nng::socket nclient_sock;
 };

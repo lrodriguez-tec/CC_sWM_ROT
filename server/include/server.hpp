@@ -3,8 +3,6 @@
 #include <random>
 #include <string>
 #include "WM.hpp"
-#include "nnxx/socket.h"
-
 
 #include "nngpp/error.h"
 #include "nngpp/msg.h"
@@ -43,7 +41,6 @@ class Server {
 		std::mt19937 gen; 		// mersenne_twister_engine seeded with rd()
 		std::uniform_int_distribution<> distrib;
 
-		nnxx::socket serv_socket;
 		nng::socket  nserv_sock;
 };
 

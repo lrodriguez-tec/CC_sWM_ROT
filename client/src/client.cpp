@@ -21,8 +21,7 @@ Client::Client (std::string server_name_,
 			   	const Elgamal::PublicKey &pubt_):	server_name{server_name_}, 
 													port{port_},
 												   	prvt{prvt_}, 
-													pubt{pubt_},
-													client_socket{nnxx::SP, nnxx::REQ}{
+													pubt{pubt_}{
 
 	nclient_sock = nng::req::open();
 
@@ -54,8 +53,8 @@ Client::Client (std::string server_name_,
 
 void Client::start_server(){
 
-	client_socket.connect("tcp://" + server_name + ":" + std::to_string(port));
-	nclient_sock.dial( "tcp://localhost:8000" );
+	std::string adress = "tcp://" + server_name + ":" + std::to_string(port);
+	nclient_sock.dial( adress.c_str() );
 
 	QueryConfig query_config;
 	query_config.set_pub_key( pubt.getStr() );
