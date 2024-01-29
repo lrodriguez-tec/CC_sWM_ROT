@@ -12,6 +12,15 @@
 #include "El_Gammal_config.hpp"
 #include "nnxx/socket.h"
 
+#include "nngpp/error.h"
+#include "nngpp/msg.h"
+#include "nngpp/view.h"
+#include <nngpp/nngpp.h>
+#include <nngpp/protocol/req0.h>
+#include <nngpp/protocol/rep0.h>
+#include <cstdio>
+
+
 class Client {
 
 	public:
@@ -27,7 +36,6 @@ class Client {
 
 		int port;
 		std::string server_name;
-		nnxx::socket client_socket;
 
 		int query_size;
 		int alph_size;
@@ -39,4 +47,7 @@ class Client {
 
 		Elgamal::PrivateKey &prvt;
 		const Elgamal::PublicKey &pubt;
+
+		nnxx::socket client_socket;
+		nng::socket nclient_sock;
 };

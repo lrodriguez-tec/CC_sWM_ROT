@@ -7,6 +7,7 @@ target_include_directories(client_app
    	PUBLIC 
 		"${PROJECT_BINARY_DIR}"
 		"${PROJECT_BINARY_DIR}" include/ 
+		${CMAKE_BINARY_DIR}/_deps/nngpp-src/include/
 )
 
 target_link_libraries(client_app
@@ -15,6 +16,8 @@ target_link_libraries(client_app
 	mcl
 	nnxx
 	rot
+	nng
+	nngpp
 )
 
 file(COPY resources/ DESTINATION resources/)

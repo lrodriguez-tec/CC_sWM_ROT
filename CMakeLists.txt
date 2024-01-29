@@ -15,6 +15,7 @@ configure_file(server/include/config.hpp.in config.hpp)
 find_package(Poco REQUIRED COMPONENTS Foundation Util)
 find_package(nanomsg CONFIG REQUIRED)
 find_package(Protobuf REQUIRED)
+find_package(nng CONFIG REQUIRED)
 
 ######################################## Fetch git cprojects
    include(FetchContent)
@@ -35,11 +36,19 @@ find_package(Protobuf REQUIRED)
 	   #GIT_TAG feature/export_target_cmake
    )
 
-   FetchContent_MakeAvailable(mcl cybozu nanomsgxx)
+   FetchContent_Declare(nngpp
+		GIT_REPOSITORY git@github.com:cwzx/nngpp.git 
+		GIT_TAG nng-v1.3.0
+   )
+
+   FetchContent_MakeAvailable(mcl cybozu nanomsgxx nngpp)
 ##################################################
+
+include_directories(${CMAKE_BINARY_DIR}/_deps/nngpp-src/include/)
 
 include_directories(${Protobuf_INCLUDE_DIRS})
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS proto_files/enc_index.proto)
+
 
 add_subdirectory(server)
 add_subdirectory(client)

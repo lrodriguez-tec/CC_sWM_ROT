@@ -29,6 +29,8 @@ Server::Server (int port_, std::string file_name_, int allowed_deletes_) :
 														//distrib{0,0},
 														serv_socket{nnxx::SP, nnxx::REP} {
 
+	nserv_sock = nng::rep::open();
+
 	std::stringstream ss;
 	ss << wm;
 	log.information(ss.str());
@@ -39,11 +41,16 @@ Server::Server (int port_, std::string file_name_, int allowed_deletes_) :
 void Server::start_server(){
 
 	serv_socket.bind("tcp://127.0.0.1:" + std::to_string(port));
+	nserv_sock.listen( "tcp://localhost:8000" );
 
 	while(true){
 
+		nng::buffer query_config_buffer = nserv_sock.recv();
+		char* query_config_char = query_config_buffer.data<char>();
+		std::string query_config_str{query_config_char};
+
 		QueryConfig query_config;
-		query_config.ParseFromString( nnxx::to_string(serv_socket.recv()) );
+		query_config.ParseFromString( query_config_str );
 
 		Elgamal::PublicKey pubt;
 		pubt.setStr(query_config.pub_key());
@@ -61,7 +68,11 @@ void Server::start_server(){
 		TextConfig text_config;
 		text_config.set_lg_sigma( lg_sigma );
 		text_config.set_text_len( text_len );
-		serv_socket.send( text_config.SerializeAsString() );
+		
+		std::string stext_config = text_config.SerializeAsString();
+		nng::view vista(stext_config.c_str(), stext_config.size());
+		nserv_sock.send( vista );
+		//serv_socket.send( text_config.SerializeAsString() );
 
 		attend_query( query_config, pubt, prvt);
 	}
@@ -93,8 +104,12 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, E
 			for(int left_right=0; left_right < 2; left_right++){
 				log.information(std::string{(left_right? "** left " : "** right")} + " : -------------------- Current r: " + std::to_string(current_r) + " ---- Prev r: " + std::to_string(prev_r));
 				
+				nng::buffer enc_index_buffer = nserv_sock.recv();
+				char* enc_index_char = enc_index_buffer.data<char>();
+				std::string enc_index_str{enc_index_char};
+
 				EncIndex enc_index;
-				enc_index.ParseFromString( nnxx::to_string( serv_socket.recv() ) );
+				enc_index.ParseFromString(enc_index_str);
 
 				QueryResult query_res;
 
@@ -115,7 +130,11 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, E
 						QueryResult final_result;
 						final_result.set_reached_deletes(true);
 						final_result.set_last_r(prev_r);
-						serv_socket.send( final_result.SerializeAsString() );
+
+						std::string sfinal_result = final_result.SerializeAsString();
+						nng::view vista(sfinal_result.c_str(), sfinal_result.size());
+						nserv_sock.send( vista );
+						//serv_socket.send( final_result.SerializeAsString() );
 						return;
 					}
 				}
@@ -125,7 +144,11 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, E
 
 				query_res.set_cipher_index( res.getStr() );
 				log.information( "Sending ciph pos: " + query_res.cipher_index() );
-				serv_socket.send( query_res.SerializeAsString() );
+
+				std::string squery_result = query_res.SerializeAsString();
+				nng::view vista(squery_result.c_str(), squery_result.size());
+				nserv_sock.send( vista );
+				//serv_socket.send( query_res.SerializeAsString() );
 			}
 
 			prev_r = current_r;
@@ -141,12 +164,20 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, E
 			ss << v << ", ";
 		log.information(ss.str(),__FILE__,__LINE__);
 
+		std::cout << "llega AQUI->>>" << endl;
+
 
 		if(i == (query_config.query_size() - 1) ){ //finish message, from client. Client should ask for penultimate r
+			nng::buffer finish_buffer = nserv_sock.recv();
+			char* finish_char = finish_buffer.data<char>();
+			std::string finish_str{finish_char};
+
 			FinishCommunication finish;
-			finish.ParseFromString( nnxx::to_string(serv_socket.recv()) );
+			finish.ParseFromString( finish_str );
+			finish.set_testing(100);
 
 			FinishCommunication finish_res;
+			finish_res.set_testing(777);;
 
 			if( finish.request_r() ){
 				prev_char_r_index = (prev_char_r_index + 1) % 3;
@@ -154,7 +185,10 @@ void Server::attend_query(QueryConfig &query_config, Elgamal::PublicKey &pubt, E
 				log.information("Client solicitate penultimate_r");
 			}
 
-			serv_socket.send( finish_res.SerializeAsString() );
+			std::string sfinish_res = finish_res.SerializeAsString();
+			nng::view vista(sfinish_res.c_str(), sfinish_res.size());
+			nserv_sock.send( vista );
+			//serv_socket.send( finish_res.SerializeAsString() );
 		}
 	}
 }

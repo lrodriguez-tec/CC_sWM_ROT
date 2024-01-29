@@ -5,6 +5,16 @@
 #include "WM.hpp"
 #include "nnxx/socket.h"
 
+
+#include "nngpp/error.h"
+#include "nngpp/msg.h"
+#include "nngpp/view.h"
+#include <nngpp/nngpp.h>
+#include <nngpp/protocol/req0.h>
+#include <nngpp/protocol/rep0.h>
+#include <cstdio>
+
+
 class Server {
 
 	public:
@@ -34,5 +44,6 @@ class Server {
 		std::uniform_int_distribution<> distrib;
 
 		nnxx::socket serv_socket;
+		nng::socket  nserv_sock;
 };
 

@@ -24,6 +24,8 @@ Client::Client (std::string server_name_,
 													pubt{pubt_},
 													client_socket{nnxx::SP, nnxx::REQ}{
 
+	nclient_sock = nng::req::open();
+
 	std::ifstream ifs{query_file_name_};
 	if(!ifs){
 		std::cerr << "Error abriendo archivo : " << query_file_name_ << std::endl;
@@ -53,15 +55,24 @@ Client::Client (std::string server_name_,
 void Client::start_server(){
 
 	client_socket.connect("tcp://" + server_name + ":" + std::to_string(port));
+	nclient_sock.dial( "tcp://localhost:8000" );
 
 	QueryConfig query_config;
 	query_config.set_pub_key( pubt.getStr() );
 	query_config.set_priv_key( prvt.getStr() ); //Only for debuging
 	query_config.set_query_size(query_size);
-	client_socket.send(query_config.SerializeAsString());
+	//client_socket.send(query_config.SerializeAsString());
+
+	std::string squery_config = query_config.SerializeAsString();
+	nng::view vista(squery_config.c_str(), squery_config.size());
+	nclient_sock.send( vista );
+
+	nng::buffer text_config_buffer = nclient_sock.recv();
+	char* text_config_char = text_config_buffer.data<char>();
+	std::string text_config_str{text_config_char};
 
 	TextConfig text_config; 
-	text_config.ParseFromString( nnxx::to_string(client_socket.recv()) );
+	text_config.ParseFromString( text_config_str );
 
 	log.information("Received:");
 	log.information("lg_sigma: " + std::to_string(text_config.lg_sigma() ));
@@ -111,10 +122,17 @@ void Client::start_server(){
 			log.information("===== prep_query lpos");
 			rot.prep_query(lpos, array_len, prvt, pubt, enc_index);
 
-			client_socket.send( enc_index.SerializeAsString() );
+			std::string senc_index = enc_index.SerializeAsString();
+			nng::view vista(senc_index.c_str(), senc_index.size());
+			nclient_sock.send( vista );
+			//client_socket.send( enc_index.SerializeAsString() );
+
+			nng::buffer query_result_buffer = nclient_sock.recv();
+			char* query_result_char = query_result_buffer.data<char>();
+			std::string query_result_str{query_result_char};
 
 			QueryResult query_result;
-			query_result.ParseFromString(nnxx::to_string(client_socket.recv()));
+			query_result.ParseFromString(query_result_str);
 
 			if(query_result.reached_deletes()){
 				log.information( "deletes limit reached: last_r = " + std::to_string(query_result.last_r()));
@@ -147,10 +165,17 @@ void Client::start_server(){
 			log.information("===== prep_query rpos");
 			rot.prep_query(rpos, array_len, prvt, pubt, enc_index_r);
 
-			client_socket.send( enc_index_r.SerializeAsString() );
+			std::string senc_index_r = enc_index_r.SerializeAsString();
+			nng::view vista_r(senc_index_r.c_str(), senc_index_r.size());
+			nclient_sock.send( vista_r );
+			//client_socket.send( enc_index_r.SerializeAsString() );
+
+			nng::buffer query_result_buffer_r = nclient_sock.recv();
+			char* query_result_char_r = query_result_buffer_r.data<char>();
+			std::string query_result_str_r{query_result_char_r};
 
 			QueryResult query_result_r;
-			query_result_r.ParseFromString(nnxx::to_string(client_socket.recv()));
+			query_result_r.ParseFromString(query_result_str_r);
 
 			Elgamal::CipherText cipher_res_r;
 			cipher_res_r.fromStr( query_result_r.cipher_index() );
@@ -182,6 +207,7 @@ void Client::start_server(){
 
 	FinishCommunication finish;
 	finish.set_request_r( last_mismatch );
+	finish.set_testing(100);
 	cout << "last mismatch : "  << last_mismatch << endl;
 
 
@@ -189,9 +215,17 @@ void Client::start_server(){
 		cout << "It is required to get penultimate_r" << endl;
 	}
 
-	client_socket.send( finish.SerializeAsString() );
+	std::string sfinish = finish.SerializeAsString();
+	nng::view vista_f(sfinish.c_str(), sfinish.size());
+	nclient_sock.send( vista_f );
+	//client_socket.send( finish.SerializeAsString() );
+
+	nng::buffer finish_res_buffer = nclient_sock.recv();
+	char* finish_res_char = finish_res_buffer.data<char>();
+	std::string finish_res_str{finish_res_char};
+
 	FinishCommunication finish_res;
-	finish_res.ParseFromString( nnxx::to_string(client_socket.recv()) );
+	finish_res.ParseFromString(finish_res_str );
 	int penultimate_r = finish_res.penultimate_r();
 
 	log.information("Penultimate_r: " + std::to_string(penultimate_r));
@@ -228,10 +262,18 @@ int Client::query_pos(int pos, int query_val){
 				log.debug(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]");
 			}
 
-			client_socket.send( enc_index.SerializeAsString() );
+			std::string senc_index = enc_index.SerializeAsString();
+			nng::view vista_f(senc_index.c_str(), senc_index.size());
+			nclient_sock.send( vista_f );
+			//client_socket.send( enc_index.SerializeAsString() );
+
+			nng::buffer query_result_buffer = nclient_sock.recv();
+			char* query_result_char = query_result_buffer.data<char>();
+			std::string query_result_str{query_result_char};
 
 			QueryResult query_result;
-			query_result.ParseFromString(nnxx::to_string(client_socket.recv()));
+			query_result.ParseFromString(query_result_str);
+			//query_result.ParseFromString(nnxx::to_string(client_socket.recv()));
 
 			Elgamal::CipherText cipher_res;
 			cipher_res.fromStr( query_result.cipher_index() );
