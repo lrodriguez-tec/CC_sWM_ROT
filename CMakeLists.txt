@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-set(input_file "AO_Sequence")  #set the name without .txt extension
+set(input_file "simple_01")  #set the name without .txt extension
 
 configure_file(server/include/config.hpp.in config.hpp)
 
