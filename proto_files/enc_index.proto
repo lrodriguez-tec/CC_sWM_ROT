@@ -34,4 +34,5 @@ message QueryResult {
 message FinishCommunication{
 	bool request_r = 1;
 	uint32 penultimate_r = 2;
+	uint32 testing = 3;
 }

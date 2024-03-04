@@ -8,6 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 set(CMAKE_BUILD_TYPE Debug)
 
+set(input_file "simple_01")  #set the name without .txt extension
+
 configure_file(server/include/config.hpp.in config.hpp)
 
 ################################################## Libraries
@@ -15,6 +17,7 @@ configure_file(server/include/config.hpp.in config.hpp)
 find_package(Poco REQUIRED COMPONENTS Foundation Util)
 find_package(nanomsg CONFIG REQUIRED)
 find_package(Protobuf REQUIRED)
+find_package(nng CONFIG REQUIRED)
 
 ######################################## Fetch git cprojects
    include(FetchContent)
@@ -29,17 +32,24 @@ find_package(Protobuf REQUIRED)
      GIT_TAG release20210218
    )
 
-   FetchContent_Declare(nanomsgxx
-	   GIT_REPOSITORY git@github.com:achille-roussel/nanomsgxx.git
-	   #GIT_REPOSITORY git@github.com:noahness/nanomsgxx.git
-	   #GIT_TAG feature/export_target_cmake
+   FetchContent_Declare(nngpp
+		GIT_REPOSITORY git@github.com:cwzx/nngpp.git 
+		GIT_TAG nng-v1.3.0
    )
 
-   FetchContent_MakeAvailable(mcl cybozu nanomsgxx)
+   FetchContent_Declare(testing_data
+     GIT_REPOSITORY git@github.com:lrodriguez-tec/testing_data_logs_runs.git
+	 GIT_TAG main
+   )
+
+   FetchContent_MakeAvailable(mcl cybozu nngpp testing_data)
 ##################################################
+
+include_directories(${CMAKE_BINARY_DIR}/_deps/nngpp-src/include/)
 
 include_directories(${Protobuf_INCLUDE_DIRS})
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS proto_files/enc_index.proto)
+
 
 add_subdirectory(server)
 add_subdirectory(client)

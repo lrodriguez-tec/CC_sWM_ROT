@@ -21,19 +21,19 @@ target_link_libraries(my_sa_bwt
 )
 
 add_custom_target(run_toi
-	COMMAND my_sa_bwt resources/sequence_01.txt
+	COMMAND my_sa_bwt resources/${input_file}.txt
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-	COMMENT "==============================> Main \n Running: my_sa_bwt"
+	COMMENT "==============================> Main \n Running: my_sa_bwt ${input_file}.txt"
 )
 
 add_custom_target(run_bwt
-	COMMAND bwt < resources/sequence_01_to_ints.txt > resources/sequence_01_to_ints_bwt.txt
+	COMMAND bwt < resources/${input_file}_to_ints.txt > resources/${input_file}_to_ints_bwt.txt
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	COMMENT "==============================> Main \n Running: bwt (results written on: resources/sequence_01_to_ints_bwt.txt"
 )
 
 add_custom_target(run_wm
-	COMMAND makeWM < resources/sequence_01_to_ints_bwt.txt > resources/sequence_01_to_ints_bwt_wm.txt
+	COMMAND makeWM < resources/${input_file}_to_ints_bwt.txt > resources/${input_file}_to_ints_bwt_wm.txt
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	COMMENT "==============================> Main \n Running: makeWM (results written on: resources/sequence_01_to_ints_bwt_wm.txt"
 )
