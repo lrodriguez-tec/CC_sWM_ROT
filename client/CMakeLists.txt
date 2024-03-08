@@ -36,3 +36,31 @@ add_custom_target(runc_f
 	COMMAND client_app -i resources/${input_file}_query.txt -p 12345
 	COMMENT "================================================== Running Client"
 )
+
+#######################################################
+add_executable(client_times_app
+	src/client_times_app.cpp
+	src/client.cpp
+)
+
+target_include_directories(client_times_app
+   	PUBLIC 
+		"${PROJECT_BINARY_DIR}"
+		"${PROJECT_BINARY_DIR}" include/ 
+		${CMAKE_BINARY_DIR}/_deps/nngpp-src/include/
+)
+
+target_link_libraries(client_times_app
+	Poco::Foundation 
+	Poco::Util
+	mcl
+	nnxx
+	rot
+	nng
+	nngpp
+)
+
+add_custom_target(runc_tf
+	COMMAND client_times_app -i resources/${input_file}_query.txt -p 12345
+	COMMENT "================================================== Running times Client"
+)
