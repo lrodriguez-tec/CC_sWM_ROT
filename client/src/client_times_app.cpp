@@ -6,6 +6,7 @@
 #include <Poco/Util/HelpFormatter.h>
 #include <Poco/Util/OptionCallback.h>
 #include <chrono>
+#include <vector>
 using namespace std::chrono;
 
 #include "client.hpp"
@@ -115,7 +116,10 @@ class Client_times_app: public Application {
 				log.information("*** prvt: " + prvt.getStr());
 				log.information("*** pubt: " + pubt.getStr());
 
-				for(int i=0; i<6; i++){
+				
+				std::vector<int> times;
+
+				for(int i=0; i<5; i++){
 
 					auto start = high_resolution_clock::now();
 
@@ -125,7 +129,28 @@ class Client_times_app: public Application {
 					auto duration = duration_cast<milliseconds>(stop - start);
  
 					std::cout << "Running time: " << duration.count() << "" << std::endl;
+					times.push_back( duration.count() );
 				}
+
+				std::ofstream outfile(input_file + "_results.txt");
+				for(int i=0;i<times.size();i++)
+					outfile << "Running time: " << times.at(i) << "" << std::endl;
+	
+				sort(times.begin(), times.end()); 
+
+				int promedio=0;
+				times.erase( times.begin() + (times.size() - 1) );
+				times.erase( times.begin() );
+
+				outfile << "=======================" << std::endl;
+				for(int i=0;i<times.size();i++){
+					outfile << "Running time: " << times.at(i) << "" << std::endl;
+					promedio += times.at(i);
+				}
+				auto times_prom = promedio/times.size();
+
+				outfile << "Tiempo promedio: " << times_prom << std::endl;
+				outfile.close();
 			}
 
 			return Application::EXIT_OK;

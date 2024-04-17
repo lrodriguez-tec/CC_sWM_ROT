@@ -64,3 +64,58 @@ add_custom_target(runc_tf
 	COMMAND client_times_app -i resources/${input_file}_query.txt -p 12345
 	COMMENT "================================================== Running times Client"
 )
+
+add_custom_command(OUTPUT FOO2.out
+	COMMAND client_times_app -i resources/${input_file}_query_02.txt -p 12345
+)
+
+add_custom_command(OUTPUT FOO4.out
+	COMMAND client_times_app -i resources/${input_file}_query_04.txt -p 12345
+)
+
+add_custom_command(OUTPUT FOO6.out
+	COMMAND client_times_app -i resources/${input_file}_query_06.txt -p 12345
+)
+
+add_custom_command(OUTPUT FOO8.out
+	COMMAND client_times_app -i resources/${input_file}_query_08.txt -p 12345
+)
+
+add_custom_target(run_simple_01_times
+	${CMAKE_COMMAND} -E echo "Executing simple_01 times" 
+	DEPENDS FOO2.out FOO4.out FOO6.out FOO8.out
+)
+
+##==================================================
+
+add_custom_command(OUTPUT A02.out
+	COMMAND client_times_app -i resources/${input_file}_query_02.txt -p 12345
+)
+add_custom_command(OUTPUT A04.out
+	COMMAND client_times_app -i resources/${input_file}_query_04.txt -p 12345
+)
+add_custom_command(OUTPUT A06.out
+	COMMAND client_times_app -i resources/${input_file}_query_06.txt -p 12345
+)
+add_custom_command(OUTPUT A08.out
+	COMMAND client_times_app -i resources/${input_file}_query_08.txt -p 12345
+)
+add_custom_command(OUTPUT A10.out
+	COMMAND client_times_app -i resources/${input_file}_query_10.txt -p 12345
+)
+add_custom_command(OUTPUT A12.out
+	COMMAND client_times_app -i resources/${input_file}_query_12.txt -p 12345
+)
+add_custom_command(OUTPUT A14.out
+	COMMAND client_times_app -i resources/${input_file}_query_14.txt -p 12345
+)
+add_custom_command(OUTPUT A16.out
+	COMMAND client_times_app -i resources/${input_file}_query_16.txt -p 12345
+)
+
+add_custom_target(run_AO_Sequence_times
+	${CMAKE_COMMAND} -E echo "Executing AO_Sequence times" 
+	#DEPENDS A02.out A04.out A06.out A08.out A10.out A12.out A14.out A16.out
+	#DEPENDS A10.out A12.out A14.out A16.out
+	DEPENDS A16.out
+)
