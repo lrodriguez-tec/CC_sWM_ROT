@@ -1,15 +1,15 @@
 #include "client.hpp"
 #include "enc_index.pb.h"
-#include "nnxx/nn.h"
+//#include "nnxx/nn.h"
 #include "ROT.hpp"
 
 #include <fstream>
 #include <iomanip>
 #include <cstdio>
 #include <iostream>
-#include <nnxx/message.h>
-#include <nnxx/socket>
-#include <nnxx/message>
+//#include <nnxx/message.h>
+//#include <nnxx/socket>
+//#include <nnxx/message>
 #include <vector>
 
 using namespace std;

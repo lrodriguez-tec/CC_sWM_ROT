@@ -14,7 +14,7 @@ target_link_libraries(client_app
 	Poco::Foundation 
 	Poco::Util
 	mcl
-	nnxx
+	#nnxx
 	rot
 	nng
 	nngpp

@@ -15,7 +15,7 @@ configure_file(server/include/config.hpp.in config.hpp)
 ################################################## Libraries
 
 find_package(Poco REQUIRED COMPONENTS Foundation Util)
-find_package(nanomsg CONFIG REQUIRED)
+#find_package(nanomsg CONFIG REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(nng CONFIG REQUIRED)
 
