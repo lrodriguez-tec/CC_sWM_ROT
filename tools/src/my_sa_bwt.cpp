@@ -37,7 +37,6 @@ int main(int argc, char* argv[]){
 	}
 
 	char c;
-	int i = 0;
 	std::map<char, int> maps;
 
 	while( myfile >> c ){
@@ -47,15 +46,14 @@ int main(int argc, char* argv[]){
 		Tr.push_back( c );
 	}
 	
+	int i = -1; //start in -1 to get A=1, B=2, etc.
 	for(const auto& elem : maps)
 		maps[elem.first] = i++;
-	maps['$'] = maps.size();
-	maps['\0'] = 0;
+	maps[';'] = maps.size() - 1;
+	maps['$'] = 0;
 
-	for(auto &elem: Tr){
+	for(auto &elem: Tr)
 		T.push_back( maps[elem]);
-	}
-	T.push_back(0);
 
 	outfile << T.size() << endl;
 	outfile << maps.size() << endl;
