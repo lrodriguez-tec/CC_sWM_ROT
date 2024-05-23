@@ -24,7 +24,7 @@ class Server_app: public Application {
 		bool helpRequested;
 		std::string input_file;
 		int port;
-		int allowed_deletes = 1;
+		int allowed_deletes = 10;
 
 	public:
 		Server_app(): helpRequested{false}, port{9999} {}
