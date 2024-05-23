@@ -14,7 +14,6 @@ target_link_libraries(client_app
 	Poco::Foundation 
 	Poco::Util
 	mcl
-	#nnxx
 	rot
 	nng
 	nngpp
@@ -54,7 +53,6 @@ target_link_libraries(client_times_app
 	Poco::Foundation 
 	Poco::Util
 	mcl
-	nnxx
 	rot
 	nng
 	nngpp
