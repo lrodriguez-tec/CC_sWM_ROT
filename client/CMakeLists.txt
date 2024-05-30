@@ -117,3 +117,9 @@ add_custom_target(run_AO_Sequence_times
 	#DEPENDS A10.out A12.out A14.out A16.out
 	DEPENDS A16.out
 )
+
+
+add_custom_target(runc_f_times
+	${CMAKE_COMMAND} -E echo "Executing" 
+	DEPENDS A02.out A04.out A06.out A08.out A10.out
+)
