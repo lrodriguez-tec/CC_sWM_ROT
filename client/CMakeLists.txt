@@ -123,3 +123,30 @@ add_custom_target(runc_f_times
 	${CMAKE_COMMAND} -E echo "Executing" 
 	DEPENDS A02.out A04.out A06.out A08.out A10.out
 )
+
+#############################################
+add_executable(client_times_noise_app
+	src/client_times_noise_app.cpp
+	src/client.cpp
+)
+
+target_include_directories(client_times_noise_app
+   	PUBLIC 
+		"${PROJECT_BINARY_DIR}"
+		"${PROJECT_BINARY_DIR}" include/ 
+		${CMAKE_BINARY_DIR}/_deps/nngpp-src/include/
+)
+
+target_link_libraries(client_times_noise_app
+	Poco::Foundation 
+	Poco::Util
+	mcl
+	rot
+	nng
+	nngpp
+)
+
+add_custom_target(run_client_times_noise_app
+	COMMAND client_times_noise_app -i resources/query.txt -p 12345
+	COMMENT "================================================== Running Client"
+)

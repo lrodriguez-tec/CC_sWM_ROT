@@ -1,15 +1,9 @@
 #include "client.hpp"
 #include "enc_index.pb.h"
-//#include "nnxx/nn.h"
 #include "ROT.hpp"
 
 #include <fstream>
-#include <iomanip>
-#include <cstdio>
 #include <iostream>
-//#include <nnxx/message.h>
-//#include <nnxx/socket>
-//#include <nnxx/message>
 #include <vector>
 
 using namespace std;
@@ -64,6 +58,7 @@ void Client::start_server(){
 
 	std::string squery_config = query_config.SerializeAsString();
 	nng::view vista(squery_config.c_str(), squery_config.size());
+	log.information("NETWORK Size query_config: " + std::to_string( squery_config.size()));
 	nclient_sock.send( vista );
 
 	nng::buffer text_config_buffer = nclient_sock.recv();
@@ -123,6 +118,7 @@ void Client::start_server(){
 
 			std::string senc_index = enc_index.SerializeAsString();
 			nng::view vista(senc_index.c_str(), senc_index.size());
+			log.information("NETWORK Size senc_index: " + std::to_string(senc_index.size()));
 			nclient_sock.send( vista );
 			//client_socket.send( enc_index.SerializeAsString() );
 
@@ -166,6 +162,7 @@ void Client::start_server(){
 
 			std::string senc_index_r = enc_index_r.SerializeAsString();
 			nng::view vista_r(senc_index_r.c_str(), senc_index_r.size());
+			log.information("NETWORK Size senc_index_r: " + std::to_string(senc_index_r.size()));
 			nclient_sock.send( vista_r );
 			//client_socket.send( enc_index_r.SerializeAsString() );
 
@@ -216,6 +213,7 @@ void Client::start_server(){
 
 	std::string sfinish = finish.SerializeAsString();
 	nng::view vista_f(sfinish.c_str(), sfinish.size());
+	log.information("NETWORK Size sfinish: " + std::to_string(sfinish.size()));
 	nclient_sock.send( vista_f );
 	//client_socket.send( finish.SerializeAsString() );
 
@@ -258,11 +256,12 @@ int Client::query_pos(int pos, int query_val){
 
 				Zn rzn;
 				prvt.dec(rzn, ct);
-				log.debug(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]");
+				//log.debug(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]");
 			}
 
 			std::string senc_index = enc_index.SerializeAsString();
 			nng::view vista_f(senc_index.c_str(), senc_index.size());
+			log.information("NETWORK Size senc_index: " + std::to_string(senc_index.size()));
 			nclient_sock.send( vista_f );
 			//client_socket.send( enc_index.SerializeAsString() );
 
