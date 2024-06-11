@@ -116,12 +116,13 @@ class Client_times_noise_app: public Application {
 				log.information("*** prvt: " + prvt.getStr());
 				log.information("*** pubt: " + pubt.getStr());
 
-				
-				std::vector<int> times;
-
 				input_file = "resources/AO_Sequence_query_10";
 
-				for(int i=1; i<=5; i++){
+                std::ofstream outfile(input_file + "_noise_results.txt");
+				//for(int i=1; i<=5; i++){
+					int promedio = 0;
+					int i=5;
+
 					for(char c='a'; c<'d'; c++){
 
 						std::string new_file_name = input_file + "-" + std::to_string(i) + "-" + c + ".txt";
@@ -135,24 +136,17 @@ class Client_times_noise_app: public Application {
 						auto duration = duration_cast<milliseconds>(stop - start);
 
 						std::cout << "Running time [" << new_file_name << "] : " << duration.count() << "" << std::endl;
-						times.push_back( duration.count() );
-					}
-				}
+						outfile << "Running time: [" << i << ":" << c << "] : " << duration.count() << "" << std::endl;
 
-                std::ofstream outfile(input_file + "_noise_results.txt");
-
-				for(int i=0; i<5; i++){
-
-					int promedio = 0;
-					for(int c=0; c<3; c++){
-						promedio += times.at( i*3 + c);
-						outfile << "Running time: [" << i << ":" << c << "] : " << times.at( i*3 + c) << "" << std::endl;
+						promedio += duration.count();
 					}
 					outfile << "Promedio: [" << (promedio/3) << "]" << std::endl;
-				}
+					outfile.flush();
+				//}
+				outfile.close();
 
-			return Application::EXIT_OK;
 		}
+		return Application::EXIT_OK;
 	}
 };
 
