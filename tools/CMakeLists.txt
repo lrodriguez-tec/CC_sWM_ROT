@@ -10,11 +10,7 @@ add_executable(makeWM
 	${CMAKE_CURRENT_SOURCE_DIR}/src/wavelet.cpp
 )
 
-add_executable(my_sa_bwt
-	${CMAKE_CURRENT_SOURCE_DIR}/src/my_sa_bwt.cpp
-)
-
-target_link_libraries(my_sa_bwt
+target_link_libraries(chtoi
 	libngweight
 	Poco::Util
 	Poco::Foundation
