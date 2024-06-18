@@ -21,9 +21,6 @@ target_link_libraries(server_app
 	nngpp
 )
 
-file(COPY resources/ DESTINATION resources/)
-
-
 add_custom_target(runs_f
 	COMMAND server_app -i ../../tools/resources/${input_file}_to_ints_bwt_wm.txt -p 12345 -d 10
 	COMMENT "================================================== Running Server"
