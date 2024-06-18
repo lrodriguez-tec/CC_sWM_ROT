@@ -44,6 +44,68 @@ For example:
 5 3 4 2
 ```
 
+### Running Example
+
+To run the 01_simple example through cmake the "tools/resources/simple_01.txt" and ¨client/resources/simple_01_query.txt¨ files will be used (you can modify the line 11 on the CMakeLists.tx file to change the filenames to be used).
+
+```
+set(input_file "simple_01")  #set the name without .txt extension
+```
+
+The "simple_01.txt" file on the ¨tools/resources/¨ path will be used.
+To generate the integer maping and the integer sequence it is required to run the command (you need to build the project first):
+
+```
+  cd build
+  make run_chtoi
+```
+
+This command generate the file simple_01_to_ints.txt.
+To compute the Burrows-Wheeler transform you can run the commands:
+
+```
+  cd build
+  make run_bwt
+```
+this command will generate the file simple_01_to_ints_bwt.txt.
+To compute the 01-Rank matrix you can run the commands:
+
+```
+  cd build
+  make run_WM
+```
+this command will generate the file simple_01_to_ints_bwt_wm.txt (this file will be used by the server).
+
+#### Starting the Server
+
+To start the server through cmake:
+
+```
+  cd build
+  make runs_f
+```
+This command start the server and load the 01-Rank Matrix.
+
+
+#### Starting the Client
+
+To start the clieng through cmake (server must be running, it is recommended open a new window terminal):
+
+```
+cd build
+make runc_f
+```
+This command will start the client, the "client/resources/simple_01_query.txt" file will be used to generate the query (check the query file format).
+
+At the end of the client execution the software will report the sequence found:
+
+```
+Query found: 5-<3>-4-1-
+```
+
+This example tells that the 3 value was a log move.
+
+
 ### Executables.
 
 The build step generates a set of executables:
@@ -75,3 +137,6 @@ Client-Server
         ./client_app: -i <input_filename> -s <server_name/IP address> -p <Server_por>
       ```
       The <input_filename> is the filename that contains the client query.
+
+
+ These executables are used and configured on CMake. You can use it separately.     
