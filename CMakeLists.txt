@@ -22,17 +22,17 @@ find_package(Protobuf REQUIRED)
    include(FetchContent)
    
    FetchContent_Declare(mcl
-     GIT_REPOSITORY git@github.com:herumi/mcl.git
+     GIT_REPOSITORY https://github.com/herumi/mcl.git
      GIT_TAG v1.86.0
    )
    
    FetchContent_Declare(cybozu
-     GIT_REPOSITORY git@github.com:herumi/cybozulib.git
+     GIT_REPOSITORY https://github.com/herumi/cybozulib.git
      GIT_TAG release20210218
    )
 
    FetchContent_Declare(nngpp
-		GIT_REPOSITORY git@github.com:cwzx/nngpp.git 
+		GIT_REPOSITORY https://github.com/cwzx/nngpp.git
 		GIT_TAG nng-v1.3.0
    )
 
