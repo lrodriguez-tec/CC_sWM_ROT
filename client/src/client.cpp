@@ -95,7 +95,7 @@ void Client::start_server(){
 		for(int i=0; i<lg_sigma; i++, query_val >>= 1){
 			last_mismatch = false;
 
-			log.information("****************************************************************************************************");
+			log.debug("****************************************************************************************************");
 			int real_pos = lpos;
 			int real_pos_r = rpos;
 
@@ -106,19 +106,19 @@ void Client::start_server(){
 			lpos %= array_len;
 			rpos %= array_len;
 
-			log.information(std::to_string(i) + " (lvi) ------------------------------> pos: " + std::to_string(real_pos) + " --- query_pos: " + std::to_string(lpos) + " --- " + std::to_string(bit));
+			log.debug(std::to_string(i) + " (lvi) ------------------------------> pos: " + std::to_string(real_pos) + " --- query_pos: " + std::to_string(lpos) + " --- " + std::to_string(bit));
 			log.debug("Plain \t\tCipher");
 
 			EncIndex enc_index;
 			enc_index.set_mismatch( mismatch );
 			mismatch = false;
 
-			log.information("===== prep_query lpos");
+			log.debug("===== prep_query lpos");
 			rot.prep_query(lpos, array_len, prvt, pubt, enc_index);
 
 			std::string senc_index = enc_index.SerializeAsString();
 			nng::view vista(senc_index.c_str(), senc_index.size());
-			log.information("NETWORK Size senc_index: " + std::to_string(senc_index.size()));
+			log.debug("NETWORK Size senc_index: " + std::to_string(senc_index.size()),__FILE__,__LINE__);
 			nclient_sock.send( vista );
 			//client_socket.send( enc_index.SerializeAsString() );
 
@@ -139,7 +139,7 @@ void Client::start_server(){
 
 				log.information("Query found: " + query_r);
 
-				exit(0);
+				return;
 			}
 
 			Elgamal::CipherText cipher_res;
@@ -147,22 +147,22 @@ void Client::start_server(){
 
 			Zn zres;
 			prvt.dec(zres, cipher_res);
-			cout << "Resultado: (ciph)  " << cipher_res << endl;
+			//cout << "Resultado: (ciph)  " << cipher_res << endl;
 			cout << "Resultado: (plain) " << zres << endl;
 
 			lpos = zres.getUint64();
 			//===========================================================
 
-			log.information(std::to_string(i) + " (rvi) ------------------------------> pos: ---" + std::to_string(real_pos_r) + "--- --- query_pos: " + std::to_string(rpos) + " --- " + std::to_string(bit));
+			log.debug(std::to_string(i) + " (rvi) ------------------------------> pos: ---" + std::to_string(real_pos_r) + "--- --- query_pos: " + std::to_string(rpos) + " --- " + std::to_string(bit));
 			log.debug("Plain \t\tCipher");
 
 			EncIndex enc_index_r;
-			log.information("===== prep_query rpos");
+			log.debug("===== prep_query rpos");
 			rot.prep_query(rpos, array_len, prvt, pubt, enc_index_r);
 
 			std::string senc_index_r = enc_index_r.SerializeAsString();
 			nng::view vista_r(senc_index_r.c_str(), senc_index_r.size());
-			log.information("NETWORK Size senc_index_r: " + std::to_string(senc_index_r.size()));
+			log.debug("NETWORK Size senc_index_r: " + std::to_string(senc_index_r.size()));
 			nclient_sock.send( vista_r );
 			//client_socket.send( enc_index_r.SerializeAsString() );
 
@@ -178,7 +178,7 @@ void Client::start_server(){
 
 			Zn zres_r;
 			prvt.dec(zres_r, cipher_res_r);
-			cout << "Resultado: (ciph_r)  " << cipher_res_r << endl;
+			//cout << "Resultado: (ciph_r)  " << cipher_res_r << endl;
 			cout << "Resultado: (plain_r) " << zres_r << endl;
 
 			rpos = zres_r.getUint64();
@@ -213,7 +213,7 @@ void Client::start_server(){
 
 	std::string sfinish = finish.SerializeAsString();
 	nng::view vista_f(sfinish.c_str(), sfinish.size());
-	log.information("NETWORK Size sfinish: " + std::to_string(sfinish.size()));
+	log.debug("NETWORK Size sfinish: " + std::to_string(sfinish.size()));
 	nclient_sock.send( vista_f );
 	//client_socket.send( finish.SerializeAsString() );
 
@@ -225,7 +225,7 @@ void Client::start_server(){
 	finish_res.ParseFromString(finish_res_str );
 	int penultimate_r = finish_res.penultimate_r();
 
-	log.information("Penultimate_r: " + std::to_string(penultimate_r));
+	log.debug("Penultimate_r: " + std::to_string(penultimate_r));
 
 	lpos = (lpos - penultimate_r + array_len) % array_len;
 	rpos = (rpos - penultimate_r + array_len) % array_len;

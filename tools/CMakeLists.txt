@@ -1,3 +1,7 @@
+add_executable(generate_query_files
+	${CMAKE_CURRENT_SOURCE_DIR}/src/generate_query_files.cpp
+)
+
 add_executable(bwt
 	${CMAKE_CURRENT_SOURCE_DIR}/src/bwt.cpp
 )
@@ -36,4 +40,10 @@ add_custom_target(run_wm
 	COMMAND makeWM < resources/${input_file}_to_ints_bwt.txt > resources/${input_file}_to_ints_bwt_wm.txt
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	COMMENT "==============================> Main \n Running: makeWM (results written on: resources/sequence_01_to_ints_bwt_wm.txt"
+)
+
+add_custom_target(run_gq
+	COMMAND generate_query_files "${CMAKE_CURRENT_SOURCE_DIR}/resources/AO_Sequence_char_map.txt" "${CMAKE_CURRENT_SOURCE_DIR}/resources/output/traces_AO_sort_uniq_shuf_115.txt"
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	COMMENT "==============================> Main \n Running: generate_query_files"
 )

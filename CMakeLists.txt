@@ -40,12 +40,7 @@ find_package(nng CONFIG REQUIRED)
 		GIT_TAG nng-v1.3.0
    )
 
-   FetchContent_Declare(testing_data
-     GIT_REPOSITORY git@github.com:lrodriguez-tec/testing_data_logs_runs.git
-	 GIT_TAG main
-   )
-
-   FetchContent_MakeAvailable(mcl cybozu nngpp testing_data)
+   FetchContent_MakeAvailable(mcl cybozu nngpp)
 ##################################################
 
 include_directories(${CMAKE_BINARY_DIR}/_deps/nngpp-src/include/)

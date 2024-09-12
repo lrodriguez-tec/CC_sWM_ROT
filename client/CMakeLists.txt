@@ -1,3 +1,5 @@
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/logger.properties client_app.properties COPYONLY)
+
 add_executable(client_app
 	src/client_app.cpp
 	src/client.cpp
@@ -148,5 +150,32 @@ target_link_libraries(client_times_noise_app
 
 add_custom_target(run_client_times_noise_app
 	COMMAND client_times_noise_app -i resources/query.txt -p 12345
+	COMMENT "================================================== Running Client"
+)
+
+##################################################
+add_executable(client_cl_app
+	src/client_cl_app.cpp
+	src/client.cpp
+)
+
+target_include_directories(client_cl_app
+   	PUBLIC 
+		"${PROJECT_BINARY_DIR}"
+		"${PROJECT_BINARY_DIR}" include/ 
+		${CMAKE_BINARY_DIR}/_deps/nngpp-src/include/
+)
+
+target_link_libraries(client_cl_app
+	Poco::Foundation 
+	Poco::Util
+	mcl
+	rot
+	nng
+	nngpp
+)
+
+add_custom_target(run115
+	COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/run_func.txt
 	COMMENT "================================================== Running Client"
 )

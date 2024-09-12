@@ -5,9 +5,12 @@
 #include <Poco/Util/Application.h>
 #include <Poco/Util/HelpFormatter.h>
 #include <Poco/Util/OptionCallback.h>
+#include <chrono>
 
 #include "client.hpp"
 #include "config.hpp"
+
+using namespace std::chrono;
 
 using Poco::Util::Application;
 using Poco::Util::Option;
@@ -113,7 +116,15 @@ class Client_app: public Application {
 				log.information("*** prvt: " + prvt.getStr());
 				log.information("*** pubt: " + pubt.getStr());
 
+
+				auto start = high_resolution_clock::now();
+
 				Client client{server_name, port, input_file , prvt, pubt};
+
+				auto stop = high_resolution_clock::now();
+				auto duration = duration_cast<milliseconds>(stop - start);
+
+				log.information(std::string{"Execution time: "} + std::to_string(duration.count()));
 			}
 
 			return Application::EXIT_OK;

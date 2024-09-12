@@ -31,6 +31,9 @@ int main(int argc, char* argv[]){
 	string out_name = file_name.substr(0, lastindex) + "_to_ints.txt";
 	ofstream outfile{ out_name };
 
+	string out_char_map = file_name.substr(0, lastindex) + "_char_map.txt";
+	ofstream out_char_map_file{ out_char_map };
+
 	if ( !myfile ) { 
 		perror(("Error opening file: " + file_name).c_str());
 		return 0;
@@ -110,8 +113,11 @@ int main(int argc, char* argv[]){
 	for(const auto& elem : maps)
 		if(elem.first == '\0'){
 			outfile << "\\0" << " : " << elem.second << endl;
-		}else
+			out_char_map_file << "\\0" << " " << elem.second << endl;
+		}else{
 			outfile << elem.first << " : " << elem.second << endl;
+			out_char_map_file << elem.first << " " << elem.second << endl;
+		}
 
 	outfile << endl;
 
@@ -127,8 +133,10 @@ int main(int argc, char* argv[]){
 	}
 
 	outfile.close();
+	out_char_map_file.close();
 
 	cout << "Results written in: " << out_name << endl;
+	cout << "Char maps in: " << out_char_map << endl;
 
 	return 0;
 }

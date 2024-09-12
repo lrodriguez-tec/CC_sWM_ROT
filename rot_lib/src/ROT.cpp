@@ -13,8 +13,7 @@ void ROT::prep_query(const int index, const int array_len, const Elgamal::Privat
 
 		Zn rzn;
 		prvt.dec(rzn, ct);
-		log.debug(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]");
-		log.information(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]");
+		log.trace(std::to_string(j) + " - " + "[" + rzn.getStr() + "]" + "[" + ct.getStr() + "]",__FILE__,__LINE__);
 	}
 }
 
@@ -43,7 +42,7 @@ std::vector<Elgamal::CipherText> ROT::req_query(EncIndex &enc_index, int r, Elga
 		if( 1 == zres.getInt64())
 			after_rotate = i;
 	}
-	log.information("==================== Rotate : (" + std::to_string(prev_rotate) + " -> " + std::to_string(after_rotate) + ")");
+	log.information("==================== Rotate : (" + std::to_string(prev_rotate) + " -> " + std::to_string(after_rotate) + ")",__FILE__,__LINE__);
 
 	return ciph_pos;
 }

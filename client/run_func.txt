@@ -1,0 +1,24 @@
+function(run_client)
+	message("Working script")
+
+	#foreach(i RANGE 1 115 1)
+	foreach(i RANGE 19 19 1)
+		execute_process(COMMAND ${CMAKE_CURRENT_BINARY_DIR}/client_app -p 12345 -s localhost -i "${CMAKE_CURRENT_BINARY_DIR}/resources/query_files/${i}.txt")
+	endforeach()
+endfunction()
+
+
+run_client()
+
+
+#function(run_client)
+#    message("Working script")
+
+#    foreach(i RANGE 1 115 1)
+#        execute_process(COMMAND ${CMAKE_SOURCE_DIR}/../../client/launcher.sh ../server/server_app -i ${CMAKE_SOURCE_DIR}/../../tools/resources/AO_Sequence_to_ints_bwt_wm.txt -p 12345 -d 10)
+#        execute_process(COMMAND ${CMAKE_CURRENT_BINARY_DIR}/client_app -p 12345 -s localhost -i "${CMAKE_CURRENT_BINARY_DIR}/resources/query_files/${i}.txt")
+#    endforeach()
+#endfunction()
+
+
+#run_client()
