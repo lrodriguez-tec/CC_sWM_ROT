@@ -56,6 +56,7 @@ int main(int argc, char* argv[]){
 		out_file << endl << endl;
 		out_file << trace << endl;
 
+		//cout << trace << " ==== " << file_name << endl;
 		cout << trace << endl;
 		out_file.close();
 		file_name++;
