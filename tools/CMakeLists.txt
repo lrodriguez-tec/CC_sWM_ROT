@@ -43,7 +43,7 @@ add_custom_target(run_wm
 )
 
 add_custom_target(run_gq
-	COMMAND generate_query_files "${CMAKE_CURRENT_SOURCE_DIR}/resources/G_Sequence_char_map.txt" "${CMAKE_CURRENT_SOURCE_DIR}/resources/logG_PPCC.txt"
+	COMMAND generate_query_files "${CMAKE_CURRENT_SOURCE_DIR}/resources/F_Sequence_char_map.txt" "${CMAKE_CURRENT_SOURCE_DIR}/resources/logF.txt"
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	COMMENT "==============================> Main \n Running: generate_query_files"
 )
